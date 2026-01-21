@@ -1,0 +1,77 @@
+\documentclass[11pt]{ist-thesis}
+% \pagestyle{bachelorthesis}  % 卒論
+%\pagestyle{ebachelorthesis}  % Graduation Thesis
+\pagestyle{masterthesis}  % 修論（目安;38ページ以上）
+% \pagestyle{emasterthesis}  % Master Thesis
+%\pagestyle{draft}  % 未完成ドラフト
+%\pagestyle{edraft}  % Draft
+
+\title{ASTに基づくコードクローンの再分類手法の提案\\タイトル2行目}
+\author{清水 ささら}
+\supervisor{肥後 芳樹 教授}
+%\supervisor{Professor Yoshiki Higo}
+\deadline{令和8年2月9日} % 正規の提出期日
+%\deadline{February Xth, XXXX}
+
+\begin{document}
+
+\titlepage
+
+% タイトル中に改行が含まれる場合は，改行を取り除いたタイトルを再定義
+\title{論文タイトル}
+
+\abstract{
+ここに概要を書く
+}
+
+\keyword{
+  \hspace{7mm} 論文のキーワードその1\\
+  \hspace{7mm} 論文のキーワードその2\\
+  \hspace{7mm} 論文のキーワードその3\\
+}
+
+% 目次を出力
+\toc
+
+% 本文開始
+% \section{1章タイトル}
+% 1章本文
+% \subsection{1.1節タイトル}
+% 1.1節本文
+% \subsubsection{1.1.1項タイトル}
+% 1.1.1項本文
+
+\section{はじめに}
+
+\section{背景}
+\subsection{コードクローン}
+% Type分類について
+コードクローンとは，プログラムテキスト中の一致または類似するコード片である~\cite{Inoue2001}. コードクローンにバグは含まれているとバグの修正漏れを引き起こす原因になり，ソースコードの保守性が低下する要因の一つとなる，また，互いにクローン関係であるソースコード片のペアを，クローンペアと呼ぶ．
+
+一般にコードクローンは，構文的な類似度に基づき，以下の4種類に分類される
+
+
+\subsection{BigClneBench}
+% 既存の大規模なベンチマークとその問題点
+
+\section{提案手法}
+
+\section{評価実験}
+
+\section{実験結果と考察}
+
+\section{妥当性への脅威}
+
+\section{おわりに}
+
+
+参考文献を参照する\cite{KamiyaTSE2002}
+
+\acknowledgement{
+}
+
+% 参考文献を出力
+\bibliographystyle{jplain}
+\bibliography{reference}
+
+\end{document}

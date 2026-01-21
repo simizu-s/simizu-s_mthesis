@@ -1,0 +1,372 @@
+% ist-thesis.cls: thesis class in our department.
+% \documentclass{ist-thesis}
+\def\istthesisversion{1.0}
+\def\istthesisdate{2025/01/01}
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesClass{ist-thesis-lt}[\istthesisdate, \istthesisversion]
+\LoadClass[11pt]{ltjarticle}
+\typeout{Master/Bachelor Thesis Style for IST, Osaka University. LuaLaTeX support by wa-otoda.}
+%
+% Printing Area.... for A4
+%
+%\typeout{printing area}
+\textwidth=15cm
+\textheight=22cm
+\topmargin=0cm
+\oddsidemargin=1cm
+\evensidemargin=1cm
+%%% baselinestretch 1.5 ->1.2 by saitoh(1996.2.18)
+\def\baselinestretch{1.2}
+%
+% Section Header
+%       from jarticle.cls, however, font and size was modified.
+%
+%\typeout{section}
+\def\section{\newpage\@startsection{section}{1}{\z@}%
+  {3.5ex plus 1ex minus .2ex}%
+  {2.3ex plus .2ex}%
+  {\normalfont\large\gtfamily\bfseries}}
+\def\subsection{\@startsection{subsection}{2}{\z@}%
+  {3.25ex plus 1ex minus .2ex}%
+  {1.5ex plus .2ex}%
+  {\normalfont\normalsize\gtfamily\bfseries}}
+\def\subsubsection{\@startsection{subsubsection}{3}{\z@}%
+  {3.25ex plus 1ex minus .2ex}%
+  {1.5ex plus .2ex}%
+  {\normalfont\normalsize\gtfamily\bfseries}}
+\def\paragraph{\@startsection{paragraph}{4}{\z@}%
+  {3.25ex plus 1ex minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\gtfamily\bfseries}}
+\def\subparagraph{\@startsection{subparagraph}{4}{\parindent}%
+  {3.25ex plus 1ex minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\gtfamily\bfseries}}
+%
+% References (bug fix jarticle.sty)
+%
+%\typeout{reference}
+\def\thebibliography#1{\section*{\refname\markboth
+    {\refname}{\refname}\addcontentsline{toc}{section}{\refname}}\list
+  {[\arabic{enumi}]}{\settowidth\labelwidth{[#1]}\leftmargin\labelwidth
+    \advance\leftmargin\labelsep
+    \usecounter{enumi}}
+  \def\newblock{\hskip .11em plus .33em minus -.07em}
+  \sloppy
+  \sfcode`\.=1000\relax}
+\let\endthebibliography=\endlist
+%
+% today
+%
+%\typeout{jpntoday}
+\newif\if西暦\let\if西暦=\iffalse\def\西暦{\let\if西暦=\iftrue}
+\def\jpntoday{{\if西暦\count0=\year\else%
+    \count0=\year\advance\count0 -2018 令和\,\fi%
+    \number\count0\,年\hspace{.5em}\nobreak%
+    \number\month\,月\hspace{.5em}\nobreak\number\day\,日}}
+%
+\newcount\nendo
+\def\nendostr{{\ifnum\month<4\nendo=\year\advance\nendo -2019\else%
+    \nendo=\year\advance\nendo -2018\fi%
+    令和{\ifnum\nendo=1{元}\else\number\nendo\fi}年度}}
+\def\enendostr{{\ifnum\month<4\nendo=\year\advance\nendo -1\else%
+    \nendo=\year\fi%
+    Fiscal Year {\number\nendo}}}
+%
+%\typeout{engtoday}
+\def\engtoday{
+  \ifcase\month\or
+  January\or February\or March\or April\or May\or June\or
+  July\or August\or September\or October\or November\or December\fi
+  \space\number\day, \number\year}
+%
+%\typeout{current time}
+\newcount\curmin \newcount\hour \newcount\onehour \newcount\curhour
+\onehour=60
+\hour=\time
+\divide\hour by\onehour
+\curhour=\hour
+\multiply\hour by-\onehour
+\curmin=\time
+\advance\curmin by\hour
+\def\curtime{{\rm\number\curhour 時\number\curmin 分}}
+%
+% Theorem Environment: 
+% \newtheoremで定義されるexampleとかがitalicになってしまうのがいやなの
+% で次のように再定義する。 
+%
+\def\@begintheorem#1#2{\trivlist \item[\hskip \labelsep{\gtfamily\bfseries [#1\ #2]}]}
+%
+% pagestyle
+%
+%\typeout{pagestyle}
+\def\myfoot{\textsf{\thepage}}
+\def\yes{1}
+%
+% for master student
+%
+\def\ps@masterthesis{
+  \def\isfinal{1}
+  \def\doctitle{修士学位論文}
+  \def\institutestr{
+    大阪大学 大学院情報科学研究科 \\
+    コンピュータサイエンス専攻 ソフトウェア工学講座}% 
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{\hfill\myfoot\hfill}%
+  \def\@evenfoot{\hfill\myfoot\hfill}%
+  \renewcommand{\abstractname}{内容梗概}
+  \newcommand{\acknowledgementname}{謝辞}
+  }
+  \def\ps@emasterthesis{
+  \def\isfinal{1}
+  \def\doctitle{Master Thesis}
+  \def\institutestr{
+    Software Engineering Laboratory, Department of Computer Science\\
+    Graduate School of Information Science and Technology, Osaka University}% 
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{\hfill\myfoot\hfill}%
+  \def\@evenfoot{\hfill\myfoot\hfill}%
+  \renewcommand{\figurename}{Figure}
+  \renewcommand{\tablename}{Table}
+  \renewcommand{\contentsname}{Contents}
+  \renewcommand{\listfigurename}{List of Figures}
+  \renewcommand{\listtablename}{List of Tables}
+  \renewcommand{\refname}{References}
+  \renewcommand{\indexname}{Index}
+  \renewcommand{\appendixname}{Appendix}
+  \renewcommand{\abstractname}{Abstract}
+  \newcommand{\acknowledgementname}{Acknowledgement}
+  \renewcommand{\nendostr}{\enendostr}
+  \renewcommand{\keywordstr}{Keywords}
+  \renewcommand{\titlestr}{Title}
+  \renewcommand{\spvstr}{Supervisor}
+  \renewcommand{\authstr}{Author}
+  }
+%
+% for bachelor student
+%
+\def\ps@bachelorthesis{
+  \def\isfinal{1}
+  \def\doctitle{特別研究報告}
+  \def\institutestr{大阪大学 基礎工学部 情報科学科}
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{\hfill\myfoot\hfill}%
+  \def\@evenfoot{\hfill\myfoot\hfill}%
+  \renewcommand{\abstractname}{内容梗概}
+  \newcommand{\acknowledgementname}{謝辞}
+  }
+  \def\ps@ebachelorthesis{
+  \def\isfinal{1}
+  \def\doctitle{Graduation Thesis}
+  \def\institutestr{
+    Department of Information and Computer Sciences\\School of Engineering Science, Osaka University}
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{\hfill\myfoot\hfill}%
+  \def\@evenfoot{\hfill\myfoot\hfill}%
+  \renewcommand{\figurename}{Figure}
+  \renewcommand{\tablename}{Table}
+  \renewcommand{\contentsname}{Contents}
+  \renewcommand{\listfigurename}{Figures}
+  \renewcommand{\listtablename}{Tables}
+  \renewcommand{\refname}{References}
+  \renewcommand{\indexname}{Index}
+  \renewcommand{\appendixname}{Appendix}
+  \renewcommand{\abstractname}{Abstract}
+  \newcommand{\acknowledgementname}{Acknowledgement}
+  \renewcommand{\nendostr}{\enendostr}
+  \renewcommand{\keywordstr}{Keywords}
+  \renewcommand{\titlestr}{Title}
+  \renewcommand{\spvstr}{Supervisor}
+  \renewcommand{\authstr}{Author}
+  }
+%
+% drafts
+%
+\def\ps@draft{
+  \def\isfinal{0}
+  \def\doctitle{DRAFT}
+  \def\institutestr{大阪大学 基礎工学部 情報科学科}
+  \def\draftstr{{\jpntoday, \curtime: \authorstr}}
+  \def\draftfoot{%
+    {\textsf{\draftstr}\hfill\textsf{\thepage}}%
+    }
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{{\draftfoot}}%
+  \def\@evenfoot{{\draftfoot}}%
+  \renewcommand{\abstractname}{内容梗概}
+  \newcommand{\acknowledgementname}{謝辞}
+  }
+  \def\ps@edraft{
+  \def\isfinal{0}
+  \def\doctitle{DRAFT}
+  \def\institutestr{Department of Information and Computer Sciences\\School of Engineering Science, Osaka University}
+  \def\draftstr{{\engtoday, \curtime: \authorstr}}
+  \def\draftfoot{%
+    {\textsf{\draftstr}\hfill\textsf{\thepage}}%
+    }
+  \def\@evenhead{}%
+  \def\@oddhead{}%
+  \def\@oddfoot{{\draftfoot}}%
+  \def\@evenfoot{{\draftfoot}}%
+  \renewcommand{\figurename}{Figure}
+  \renewcommand{\tablename}{Table}
+  \renewcommand{\contentsname}{Contents}
+  \renewcommand{\listfigurename}{Figures}
+  \renewcommand{\listtablename}{Tables}
+  \renewcommand{\refname}{References}
+  \renewcommand{\indexname}{Index}
+  \renewcommand{\appendixname}{Appendix}
+  \renewcommand{\abstractname}{Abstract}
+  \newcommand{\acknowledgementname}{Acknowledgement}
+  \renewcommand{\nendostr}{\enendostr}
+  \renewcommand{\keywordstr}{Keywords}
+  \renewcommand{\titlestr}{Title}
+  \renewcommand{\spvstr}{Suprevisor}
+  \renewcommand{\authstr}{Author}
+  }
+%
+% title page items
+%
+%\typeout{commands...}
+\def\titlename{Don't Trust Over Thirty!!}
+\renewcommand{\title}[1]{
+  \def\titlename{#1}
+  }
+%
+\def\authorstr{Mr. Foo Bar}
+\renewcommand{\author}[1]{
+  \def\authorstr{#1}
+  }
+%
+\def\supervisorstr{萩原 兼一 教授}
+\newcommand{\supervisor}[1]{
+  \def\supervisorstr{#1}
+  }
+%
+\def\deadlinestr{}
+\newcommand{\deadline}[1]{
+ \def\deadlinestr{#1}
+ }
+\newcommand{\keywordstr}{主な用語}
+\newcommand{\titlestr}{題目}
+\newcommand{\spvstr}{指導教員}
+\newcommand{\authstr}{報告者}
+%
+% title page
+%
+%\typeout{titlepage}
+\renewcommand{\titlepage}{
+  \newpage
+  \thispagestyle{empty}
+  \setcounter{page}{0}
+  \if\isfinal\yes
+  \vspace*{\fill}
+  \begin{center}
+    \textgt{\textbf{\Large\doctitle}}
+  \end{center}
+  \vspace*{5mm}
+  \begin{center}
+    {\large \titlestr}
+  \end{center}
+  \vspace*{3mm}
+  \begin{center}
+    \textgt{\textbf{\Large\titlename}}
+  \end{center}
+  \vspace*{5mm}
+  \begin{center}
+    \spvstr \\
+    \supervisorstr
+  \end{center}
+  \vspace*{5mm}
+  \begin{center}
+    \authstr \\
+    \authorstr
+  \end{center}
+  \vspace*{5mm}
+  \begin{center}
+    \deadlinestr
+  \end{center}
+  \vspace*{5mm}
+  \begin{center}
+    \institutestr
+  \end{center}
+  \vspace*{\fill}
+  \else
+  \vspace*{\fill}
+  \begin{center}
+    \textgt{\textbf{\Huge DRAFT}}
+  \end{center}
+  \vspace*{1cm}
+  \begin{center}
+    \textgt{\textbf{\Large\titlename}}
+  \end{center}
+  \vspace*{1cm}
+  \begin{center}
+    {\Large \authorstr}
+  \end{center}
+  \vspace*{1cm}
+  \begin{center}
+    \textgt{\textbf{\Large\engtoday}}
+  \end{center}
+  \vspace*{\fill}
+  \fi
+  }
+%
+%\typeout{abstract}
+\renewcommand{\abstract}{
+  \newpage
+  \begin{flushleft}
+    \nendostr\ \doctitle
+  \end{flushleft}
+  \vspace*{2mm}
+  \begin{flushleft}
+    \titlename
+  \end{flushleft}
+  \begin{flushright}
+    \authorstr
+  \end{flushright}
+  \vspace*{2mm}
+  \begin{flushleft}
+    \textgt{\textbf{\large\abstractname}}
+  \end{flushleft}
+  \vspace*{2mm}
+  \par
+  }
+%
+%\typeout{keyword}
+\newcommand{\keyword}{
+  \vspace*{5mm}
+  \begin{flushleft}
+    \textgt{\textbf{\keywordstr}}
+  \end{flushleft}
+  }
+%
+%\typeout{toc}
+\newcommand{\toc}{
+  \if\isfinal\yes
+  \newpage
+  \tableofcontents
+  \fi
+  }
+%typeout{acknowledgement}
+\newcommand{\acknowledgement}{
+  \newpage
+  \section*{\acknowledgementname\addcontentsline{toc}{section}{\acknowledgementname}}
+  }
+%typeout{appendix}
+\renewcommand{\appendix}{
+  \newpage
+  \section*{\appendixname\addcontentsline{toc}{section}{\appendixname}}
+  }
+%typeout{yet another reference}
+\newcommand{\reference}{
+  \newpage
+  \section*{\refname\addcontentsline{toc}{section}{\refname}}
+  }
+%\typeout{done}
+\renewcommand{\emph}[1]{\textgt{\textbf{#1}}}
