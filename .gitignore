@@ -8,5 +8,5 @@
 *.bbl
 *.blg
 *.dvi
-*.pdf
+main.pdf
 out/

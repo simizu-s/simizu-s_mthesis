@@ -6,11 +6,29 @@
 %\pagestyle{draft}  % 未完成ドラフト
 %\pagestyle{edraft}  % Draft
 
-\title{ASTに基づくコードクローンの再分類手法の提案\\タイトル2行目}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[dvipdfmx]{graphicx}
+
+% 言語ごとのスタイル設定
+\lstset{
+    language=Java,                  % 言語指定
+    basicstyle=\small\ttfamily,     % 基本フォント
+    keywordstyle=\color{blue},      % 予約語の色
+    commentstyle=\color{green!60!black}, % コメントの色
+    stringstyle=\color{orange},     % 文字列の色
+    numbers=left,                   % 行番号を左に表示
+    numberstyle=\tiny\color{gray},  % 行番号のスタイル
+    frame=single,                   % 枠線
+    breaklines=true,                % 長い行の自動折り返し
+    captionpos=b                    % キャプションを下に配置
+}
+
+\title{コードクローン検出の後処理としての統一的ラベリング手法}
 \author{清水 ささら}
 \supervisor{肥後 芳樹 教授}
 %\supervisor{Professor Yoshiki Higo}
-\deadline{令和8年2月9日} % 正規の提出期日
+\deadline{令和8年2月2日} % 正規の提出期日
 %\deadline{February Xth, XXXX}
 
 \begin{document}
@@ -18,10 +36,12 @@
 \titlepage
 
 % タイトル中に改行が含まれる場合は，改行を取り除いたタイトルを再定義
-\title{論文タイトル}
+\title{コードクローン検出の後処理としての統一的ラベリング手法}
 
 \abstract{
 ここに概要を書く
+
+% 種々のコードクローン検出ツールが提案されているが，それぞれが独自のコードクローンの定義に基づいて検出を行っている．コードクローンは類似度に応じて Type-1，Type-2，Type-3，Type-4 の4種類に分類されるが，これらの定義は必ずしも厳密ではなく，特に Type-3 と Type-4 の境界は曖昧である．その結果，ある検出ツールでは Type-3 として検出されたコードクローンが，別の検出ツールでは Type-4 として扱われるといった不整合が生じる．また，多くのコードクローン検出ツールは検出のみを行い，クローンのカテゴリに関するラベル付けを行わないため，検出結果の解釈や比較が困難であるという問題もある．本研究では，これらの課題を解決するために，コードクローン検出後の後処理として統一的なラベリング手法を提案する．提案手法を用いることで，使用するコードクローン検出ツールに依存することなく，検出されたコードクローンに対して一貫した基準に基づくラベリングが可能となる．近年，ソフトウェア工学分野ではコードクローン情報を大規模言語モデル（LLM）の学習データとして利用する研究が増加しており，本研究で提案するラベリング手法は，高品質にラベル付けされたコードクローンデータの構築にも寄与する．提案手法の有効性を評価するため，広く利用されているコードクローンデータセットである BigCloneBench に含まれるコードクローンを対象に再ラベリングを行った．そして，BigCloneBench における既存のラベリングと提案手法によるラベリングについて被験者実験を実施し，どちらがコードクローンの定義により適合しているかを比較・分析した．
 }
 
 \keyword{
@@ -44,11 +64,14 @@
 \section{はじめに}
 
 \section{背景}
+
 \subsection{コードクローン}
 % Type分類について
 コードクローンとは，プログラムテキスト中の一致または類似するコード片である~\cite{Inoue2001}. 
 コードクローンにバグは含まれているとバグの修正漏れを引き起こす原因になり，ソースコードの保守性が低下する要因の一つとなる，
 また，互いにクローン関係であるソースコード片のペアを，クローンペアと呼ぶ．
+
+ソースコードの規模が大きくなると，ソースコード中のコードクローンの量も増加するため，手動でコードクローンを管理することは困難となる．そのため，ソースコード中から自動的にコードクローンを検出するツールが研究されている~\cite{Jiang2007}~\cite{Nicad}~\cite{KamiyaTSE2002}．
 
 一般にコードクローンは，構文的な類似度に基づき，以下の4種類に分類される．
 
@@ -59,6 +82,7 @@
     \item[Type4] 構文は異なるが同じ機能を提供する
 \end{description}
 
+Type3とType4の境界は曖昧であり，コードクローン検出ツールは
 
 \subsection{BigClneBench}
 % 既存の大規模なベンチマークとその問題点
@@ -70,13 +94,15 @@ BigClneBenchは，ビッグデータプロジェクト間リポジトリであ�
 Type3及びType4の境界が曖昧であるため，BigCloneBenchでは，行単位での構文的類似度に基づいて0以上1未満の範囲で，以下のように分類している．
 
 \begin{description}
-    \item[Strongly Type3] 0.7以上1.0未満
-    \item[Moderately Type3] 0.5以上0.7未満
-    \item[Weakly Type3] 0.0以上0.5未満
+    \item[Strongly-Type3] 0.7以上1.0未満
+    \item[Moderately-Type3] 0.5以上0.7未満
+    \item[Weakly-Type3] 0.0以上0.5未満
 \end{description}
 
 BigClneBenchは，古典的なクローン検出手法において，クローン検出性能評価のベンチマークとして，幅広く使用されている．
-既存の研究において，Weakly Type3クローンはType4クローンとして用いられる．
+既存の研究において，Weakly-Type3クローンはType4クローンとして用いられる．
+また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている．
+
 
 \section{提案手法}
 本研究では，コードクローンの分類の新たな定義として抽象構文木を用いた分類を行う．
@@ -84,21 +110,110 @@ BigClneBenchは，古典的なクローン検出手法において，クロー�
 \subsection{抽象構文木(AST)}
 ASTとはソースコードの構文構造を木構造で表現したデータ構造である．
 
+以下にASTに関する用語を示す．また，図~\ref{fig:AST_discription}にASTの例を示す．
+
+\begin{description}
+    \item[根ノード] AST上の最上部(頂点)にあるノードを指す．図~\ref{fig:AST_discription}では青く示されたprogramノードである．
+    \item[葉ノード] AST上の最下部(末端)にあるノードを指す．図~\ref{fig:AST_discription}では緑で示された二つのノードである．斜体で示されているのがそのノードの持つ値である．
+    \item[親ノード] あるノードにおいて頂点側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，青く示されたprogramノードが赤く示されたmethoddeclarationノードの親ノードになる．
+    \item[子ノード] あるノードにおいて末端側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，赤く示されたmethoddeclarationノードが青く示されたprogramノードの子ノードになる．
+\end{description}
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/AST_discription.pdf}
+  \caption{ASTの例}
+  \label{fig:AST_discription}
+\end{figure}
+
+本研究では，AST解析ライブラリとしてTree-sitter~\footnote{https://github.com/tree-sitter/tree-sitter}を用いた．Tree-sitterには多くの言語のバインディングが用意されており，汎用的に利用できることから選択した．Tree-sitterのJava言語バイディングを用いてJavaで書かれたソースコードに対する構文解析を行う．
+
+\subsection{分類基準}
+
 本研究ではASTに基づいて新たな分類基準を定義した．
 定義は以下の通りである．
+前提としてすでにコードクローンとして検出されたコードに対して分類を行う．
 
 \begin{description}
     \item[Type1] ASTが完全一致
-    \item[Type2] 葉を除いてASTが一致 
+    \item[Type2] 演算子以外の葉ノードを除いてASTが一致 
     \item[Type3] 単文を除いてASTが一致
     \item[Type4] 上記に分類されないもの
 \end{description}
 
+それぞれの分類基準について具体例を図に示す．
+Type1では葉ノードを含むAST全体が完全に一致する．
+Type2では演算子以外の葉ノードを除いたASTが一致する．
+図では
+Type3では単文を除いたASTが一致する．
+以下に単文として除かれるノードを示す．これらは
+
+\subsection{BigCloneBenchの分類結果}
+
+提案手法を用いてBigCloneBench内のクローンペアの分類を行った．その結果を表~\ref{tab:BCB_type}に示す．
+
+\begin{table}[ht]
+\centering
+\caption{提案手法によるBigCloneBenchの分類結果}
+\label{tab:BCB_type}
+\begin{tabular}{crrrrr}
+\hline
+ & Type1 & Type2 & Strongly-Type3 & Moderately-Type3 & Weakly-Type3 \\ \hline
+Type1(提案手法) & 48,116 & 0 & 0 & 0 & 0 \\
+Type2(提案手法) & 0 & 4,234 & 3,637 & 12  & 1  \\
+Type3(提案手法) & 0 & 0 & 7,984 & 13,302 & 46,973  \\
+Type4(提案手法) & 0 & 0 & 10,345 & 74,992 & 8,403,230 \\ \hline
+合計 & 48,116 & 4,234 & 21,966 & 88,306 & 8,450,204 \\ \hline
+\end{tabular}
+\end{table}
+
+BigCloneBenchのStrongly-Type3，Moderately-Type3，Weakly-Type3に分類されるクローンペアのうち，提案手法でType2と判断されたクローンペアの例をListing~\ref{code:type２}に示す．Listing~\ref{code:type２}では，修飾子が異なるため，BigCloneBenchではModerately-Type3に分類されていた．
+
+% \begin{lstlisting}[caption={比較対象のJavaソースコード}, label={code:sample}]
+% public int add(int a, int b) {
+%     // 算術演算の例
+%     return a + b;
+% }
+% \end{lstlisting}
+
+\begin{lstlisting}[caption={Type2と判断されたクローンペアの例}, label={code:type２}]
+// --- id 4644121 ---
+protected void copy (Reader reader, OutputStream outputs) throws IOException {
+    IOUtils.copy (reader, outputs);
+}
+
+// --- id 11088627 ---
+public static void copyWithoutClose (InputStream is, OutputStream os) throws IOException {
+    IOUtils.copy (is, os);
+    }
+\end{lstlisting}
+
+
 \section{評価実験}
+本説では，提案手法に対する評価実験について述べる．
+
+\subsection{実験目的}
+行の一致率で分類した元の分類と提案手法のどちらが，より人間の感覚に近いのかを評価するためである．
+特に，分類の基準が明確でないType3, Type4のコードクローンを対象とする．
+
+\subsection{実験手順}
+
+被験者はコンピュータサイエンスを専攻する学生6人であり，いずれもJavaを用いたプログラミングの経験があり，基本的な構文を理解している．
+実験の対象となるクローンペアは以下である．
+
+\begin{itemize}
+    \item Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペア
+    \item Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア
+\end{itemize}
+
+これらのクローンペアのうち，どちらか一方が重複しているものを除き，長さの短いものからそれぞれ50個抽出し，合計100個のクローンペアを対象とした．
+被験者には，事前に，2.1節に記述したType3, Type4の定義を提示し，100個のクローンペアがどちらに分類されるべきかを判断してもらった．
 
 \section{実験結果と考察}
 
 \section{妥当性への脅威}
+% 本研究では，Tree-sitterを用いてASTを作成し，Tree-sitterの定めるノードを基準とし分類を行った．
+% したがって，Tree-sitterの性能に依存する．
 
 \section{おわりに}
 
