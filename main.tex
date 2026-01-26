@@ -82,12 +82,16 @@
     \item[Type4] 構文は異なるが同じ機能を提供する
 \end{description}
 
-Type3とType4の境界は曖昧であり，コードクローン検出ツールは
+Type3とType4の境界は曖昧である．
+コードクローン検出ツールはそれぞれ独自の中間表現(抽象構文木，依存グラフ，トークン列など)や類似度計算アルゴリズムを用いているため，同じクローンペアに対して，分類が異なる場合がある，この場合，結果を比較することが困難となる．
+また，コードクローン検出ツールには，検出のみを行い，分類を行わないツールも存在する．それらのツールについても，Typeごとの比較を行うことは難しい．
 
-\subsection{BigClneBench}
+本研究では，基準を明確にした統一的なラベリングを行うことで，ツール間での比較を可能にすることを目的としている．
+
+\subsection{BigCloneBench}
 % 既存の大規模なベンチマークとその問題点
-BigClneBenchは，クローン検出性能評価で用いられる大規模なベンチマークである．
-BigClneBenchは，ビッグデータプロジェクト間リポジトリであるIJDataset2.0からマイニングされた真陽性クローン，偽陽性クローンからなるベンチマークである．
+BigCloneBenchは，クローン検出性能評価で用いられる大規模なベンチマークである~\cite{BigCloneBench}．
+BigCloneBenchは，ビッグデータプロジェクト間リポジトリであるIJDataset2.0からマイニングされた真陽性クローン，偽陽性クローンからなるベンチマークである．
 検索ヒューリスティックを用いて，ターゲットとなる機能を実装する可能性のあるコードスニペットを自動で特定し，
 判定者によって手動で機能の真陽性，偽陽性のタグ付が行われている．
 
@@ -99,9 +103,12 @@ Type3及びType4の境界が曖昧であるため，BigCloneBenchでは，行単
     \item[Weakly-Type3] 0.0以上0.5未満
 \end{description}
 
-BigClneBenchは，古典的なクローン検出手法において，クローン検出性能評価のベンチマークとして，幅広く使用されている．
+BigCloneBenchは，古典的なクローン検出手法において，クローン検出性能評価のベンチマークとして，幅広く使用されている．
 既存の研究において，Weakly-Type3クローンはType4クローンとして用いられる．
 また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている．
+
+しかし，BigCloneBenchはタグ付けが不正確で，Type4コードクローンのデータとして扱うには不適切であることが言われている. 
+
 
 
 \section{提案手法}
@@ -115,8 +122,8 @@ ASTとはソースコードの構文構造を木構造で表現したデータ�
 \begin{description}
     \item[根ノード] AST上の最上部(頂点)にあるノードを指す．図~\ref{fig:AST_discription}では青く示されたprogramノードである．
     \item[葉ノード] AST上の最下部(末端)にあるノードを指す．図~\ref{fig:AST_discription}では緑で示された二つのノードである．斜体で示されているのがそのノードの持つ値である．
-    \item[親ノード] あるノードにおいて頂点側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，青く示されたprogramノードが赤く示されたmethoddeclarationノードの親ノードになる．
-    \item[子ノード] あるノードにおいて末端側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，赤く示されたmethoddeclarationノードが青く示されたprogramノードの子ノードになる．
+    \item[親ノード] あるノードにおいて頂点側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，青く示されたprogramノードが赤く示されたmethod\_declarationノードの親ノードになる．
+    \item[子ノード] あるノードにおいて末端側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，赤く示されたmethod\_declarationノードが青く示されたprogramノードの子ノードになる．
 \end{description}
 
 \begin{figure}[ht]
@@ -143,10 +150,48 @@ ASTとはソースコードの構文構造を木構造で表現したデータ�
 
 それぞれの分類基準について具体例を図に示す．
 Type1では葉ノードを含むAST全体が完全に一致する．
+
 Type2では演算子以外の葉ノードを除いたASTが一致する．
-図では
+図~\ref{fig:AST_type2}に示した例では，緑で示した葉ノードは異なるが，葉ノードを除いたASTは一致する．
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{images/example_Type2.pdf}
+  \caption{Type2の例}
+  \label{fig:AST_type2}
+\end{figure}
+
 Type3では単文を除いたASTが一致する．
-以下に単文として除かれるノードを示す．これらは
+単文として定義するノードを表~\ref{tab:statement_nodes}示す．これらはTree-sitterで用いられるノードで定義される．これらのノードを親ノードとして持つノードもType3では除かれる．
+図~\ref{fig:AST_type3}に示した例では，緑で示した葉ノードと，赤で示した単文を表すノード以下のノードを除いたASTが一致する．
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=1\textwidth]{images/example_Type3.pdf}
+  \caption{Type3の例}
+  \label{fig:AST_type3}
+\end{figure}
+
+\begin{table}[ht]
+\centering
+\caption{単文として定義するノードと役割}
+\label{tab:statement_nodes}
+\begin{tabular}{lp{10cm}} 
+\hline
+\textbf{ノード} & \textbf{説明} \\ \hline
+expression\_statement & 式(代入，メソッド呼び出し，インクリメント等)を文として完結させたもの \\
+local\_variable\_declaration & メソッド内でローカル変数を宣言する文, 型と識別子を保持する\\
+declaration & クラス，インタフェース，またはフィールド等の宣言全般を指す広義のノード \\
+return\_statement & メソッドの実行を終了し，呼び出し元へ値を返す制御文 \\
+throw\_statement & 例外を明示的にスローし，通常の実行フローを中断する文 \\
+break\_statement & ループ(for, while等)やswitchブロックから直ちに脱出するための制御文 \\
+continue\_statement & ループの現在の反復を終了し，次の反復処理へスキップするための文 \\
+yield\_statement & switch式において，値を返してブロックを終了するための文(Java 13以降) \\
+assert\_statement & プログラムの前提条件を検証するための表明文. デバッグや検証に用いられる.  \\ \hline
+\end{tabular}
+\end{table}
+
+
 
 \subsection{BigCloneBenchの分類結果}
 
@@ -167,14 +212,8 @@ Type4(提案手法) & 0 & 0 & 10,345 & 74,992 & 8,403,230 \\ \hline
 \end{tabular}
 \end{table}
 
-BigCloneBenchのStrongly-Type3，Moderately-Type3，Weakly-Type3に分類されるクローンペアのうち，提案手法でType2と判断されたクローンペアの例をListing~\ref{code:type２}に示す．Listing~\ref{code:type２}では，修飾子が異なるため，BigCloneBenchではModerately-Type3に分類されていた．
+BigCloneBenchのStrongly-Type3，Moderately-Type3，Weakly-Type3に分類されるクローンペアのうち，提案手法でType2と判断されたクローンペアの例をListing~\ref{code:type２}に示す．修飾子が異なるため，BigCloneBenchではModerately-Type3に分類されていた．
 
-% \begin{lstlisting}[caption={比較対象のJavaソースコード}, label={code:sample}]
-% public int add(int a, int b) {
-%     // 算術演算の例
-%     return a + b;
-% }
-% \end{lstlisting}
 
 \begin{lstlisting}[caption={Type2と判断されたクローンペアの例}, label={code:type２}]
 // --- id 4644121 ---
