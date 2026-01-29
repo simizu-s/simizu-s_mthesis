@@ -9,6 +9,7 @@
 \usepackage{listings}
 \usepackage{xcolor}
 \usepackage[dvipdfmx]{graphicx}
+\usepackage{subcaption}
 
 % 言語ごとのスタイル設定
 \lstset{
@@ -71,9 +72,9 @@
 コードクローンにバグは含まれているとバグの修正漏れを引き起こす原因になり，ソースコードの保守性が低下する要因の一つとなる，
 また，互いにクローン関係であるソースコード片のペアを，クローンペアと呼ぶ．
 
-ソースコードの規模が大きくなると，ソースコード中のコードクローンの量も増加するため，手動でコードクローンを管理することは困難となる．そのため，ソースコード中から自動的にコードクローンを検出するツールが研究されている~\cite{Jiang2007,Nicad,KamiyaTSE2002}．
+ソースコードの規模が大きくなると，ソースコード中のコードクローンの量も増加するため，手動でコードクローンを管理することは困難となる．そのため，ソースコード中から自動的にコードクローンを検出するツールが研究されている~\cite{Jiang2007,KamiyaTSE2002,Nicad}．
 
-一般にコードクローンは，構文的な類似度に基づき，以下の4種類に分類される．
+一般にコードクローンは，構文的な類似度に基づき，以下の4種類に分類される~\cite{Roy2009}．
 
 \begin{description}
     \item[Type1] 改行，コメント，空白を除いて一致
@@ -85,14 +86,14 @@
 Type3とType4の境界は曖昧である．
 コードクローン検出ツールはそれぞれ独自の中間表現(抽象構文木，依存グラフ，トークン列など)や類似度計算アルゴリズムを用いているため，
 \textcolor{blue}{同じソースコードからコードクローンを検出する場合でも検出されるコードクローンが異なったり，同じ箇所がコードクローンとして検出された場合でもその分類が異なったりする．
-機械学習モデルの学習において,分類基準が異なると結果に影響を及ぼす．}
+その結果，コードクローン検出ツールの性能比較を目的としたツール間の比較や，機械学習モデルの学習に必要な高精度なデータの提供が困難となる．}
 また，コードクローン検出ツールには，検出のみを行い，分類を行わないツールも存在する．それらのツールについても，Typeごとの比較を行うことはできない．
-本研究では，基準を明確にした統一的なラベリングを行うことで，ツール間での比較を可能にすることを目的としている．
+本研究では，基準を明確にした統一的なラベリングを行うことで，ツール間での比較を可能にし，機械学習の学習データとして提供するの質の高いデータの作成を目的としている．
 
 \subsection{BigCloneBench}
 % 既存の大規模なベンチマークとその問題点
 BigCloneBenchは，コードクローン検出器の性能評価で用いられるJavaの大規模なベンチマークである~\cite{BigCloneBench}．
-\textcolor{blue}{プロジェクト間リポジトリの大規模データであるIJDataset2.0から，特定の機能を実装する可能性のあるソースコードを自動で特定し，
+\textcolor{blue}{複数のソフトウェアプロジェクトから収集された大規模リポジトリ群であるIJDataset2.0から，特定の機能を実装する可能性のあるソースコードを自動で特定し，
 対象の機能を正しく実装しているか否かのタグ付が手動で行われている．}
 
 BigCloneBenchでは，Type3及びType4のコードクローンを，行単位での構文的類似度に基づいて0以上1未満の範囲で，以下のように分類している．
@@ -103,20 +104,19 @@ BigCloneBenchでは，Type3及びType4のコードクローンを，行単位で
     \item[Weakly-Type3] 0.0以上0.5未満
 \end{description}
 
-BigCloneBenchは，古典的なクローン検出手法において，クローン検出性能評価のベンチマークとして，幅広く使用されている．
-既存の研究において，Weakly-Type3クローンはType4クローンとして用いられる．
-また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている．
+既存のコードクローン検出ツールや機械学習を用いたコードクローン検出の研究において，Weakly-Type3クローンはType4クローンとして用いられている~\cite{AlamICSME2025,PinkuICSME2024,WangICSE2023,YuICSE2025,ZhangICCQ2024}．
+また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている\cite{WangICSE2023,YuICSE2025}．
 
-しかし，BigCloneBenchはタグ付けが不正確で，Type4コードクローンのデータとして扱うには不適切であることが言われている. 
+しかし，BigCloneBenchはタグ付けが不正確で，Type4コードクローンのデータとして扱うには不適切であることがいわれている~\cite{KrinkeIWSC2022,Krinke2025}. 
 
 
-検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
-学習データとして用いてる~\cite{WangICSE2023},~\cite{YuICSE2025}
-harmfl~\cite{KrinkeIWSC2022}
+% 検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
+% 学習データとして用いてる~\cite{WangICSE2023},~\cite{YuICSE2025}
+% harmfl~\cite{KrinkeIWSC2022}
 
 
 \section{準備}
-本説では，提案手法で用いられる抽象構文木について説明する．
+本節では，提案手法で用いられる抽象構文木について説明する．
 
 \subsection{抽象構文木(AST)}
 ASTとはソースコードの構文構造を木構造で表現したデータ構造である．
@@ -124,10 +124,10 @@ ASTとはソースコードの構文構造を木構造で表現したデータ�
 以下にASTに関する用語を示す．また，図~\ref{fig:AST_discription}にASTの例を示す．
 
 \begin{description}
-    \item[根ノード] AST上の最上部(頂点)にあるノードを指す．図~\ref{fig:AST_discription}では青く示されたprogramノードである．
-    \item[葉ノード] AST上の最下部(末端)にあるノードを指す．図~\ref{fig:AST_discription}では緑で示された二つのノードである．斜体で示されているのがそのノードの持つ値である．
     \item[親ノード] あるノードにおいて頂点側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，青く示されたprogramノードが赤く示されたmethod\_declarationノードの親ノードになる．
     \item[子ノード] あるノードにおいて末端側に直接参照を持つノードを指す．図~\ref{fig:AST_discription}では，赤く示されたmethod\_declarationノードが青く示されたprogramノードの子ノードになる．
+    \item[根ノード] 親を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では青く示されたprogramノードである．
+    \item[葉ノード] 子を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では緑で示された二つのノードである．斜体で示されているのがそのノードの持つ値である．
 \end{description}
 
 \begin{figure}[ht]
@@ -143,6 +143,36 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 
 \section{提案手法}
 本研究では，コードクローンの分類の新たな定義として抽象構文木を用いた分類を行う．
+図~\ref{fig:sub_a}に示すように，従来のコードクローン分析では，特定のツールの検出結果をそのまま利用する．
+そのため，ツールによってラベルが異なる，あるいは，出力にラベルを含まれないという課題が発生する．
+これは，ツール間の比較や，機械学習への高精度な学習データの提供を困難にする．
+
+しかし，図~\ref{fig:sub_b}に示すように，コードクローン検出ツールによって，コードクローン検出ののち，
+提案手法によって統一された基準基づいたラベリングを行うことで，ツールによらないラベルが得られ，ツール間の比較や機械学習への高精度な学習データの提供が可能となる．
+
+\begin{figure}[ht]
+    \centering
+    % 上の図 (a)
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.6\textwidth]{images/flow_before.pdf}
+        \caption{従来の流れ}
+        \label{fig:sub_a}
+    \end{subfigure}
+    
+    \vspace{1cm} % 図と図の間の垂直方向の隙間を調整
+    
+    % 下の図 (b)
+    \begin{subfigure}{\textwidth}
+        \centering
+        \includegraphics[width=0.9\textwidth]{images/flow_after.pdf}
+        \caption{提案手法を用いた場合の流れ}
+        \label{fig:sub_b}
+    \end{subfigure}
+    
+    \caption{従来の方法と提案手法を用いた場合の違い}
+    \label{fig:ast_comparison}
+\end{figure}
 
 
 
@@ -150,65 +180,106 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 
 本研究ではASTに基づいて新たな分類基準を定義した．
 定義は以下の通りである．
-前提としてすでにコードクローンとして検出されたコードに対して分類を行う．
+前提としてすでにコードクローンとして検出されたコードが対象で，
+与えられたクローンペアをそれぞれASTに変換し，二つのASTの差に応じて分類を行う．
 
 \begin{description}
     \item[Type1] ASTが完全一致
     \item[Type2] 演算子以外の葉ノードを除いてASTが一致 
-    \item[Type3] 単文を除いてASTが一致
+    \item[Type3] 葉ノードに加え，単文以下のノードを除いてASTが一致
     \item[Type4] 上記に分類されないもの
 \end{description}
 
-それぞれの分類基準について具体例を図に示す．
-Type1では葉ノードを含むAST全体が完全に一致する．
+Type1〜3の分類基準について詳細を述べる．
 
-Type2では演算子以外の葉ノードを除いたASTが一致する．
-図~\ref{fig:AST_type2}に示した例では，緑で示した葉ノードは異なるが，葉ノードを除いたASTは一致する．
+Type1では葉ノードの持つ値を含むAST全体が完全に一致する(図~\ref{fig:AST_type1})．
+それぞれのノードの名前と，斜体で示された値が完全に同一である場合，Type1と判断される．
 
 \begin{figure}[ht]
   \centering
-  \includegraphics[width=1\textwidth]{images/example_Type2.pdf}
+  \includegraphics[width=0.8\textwidth]{images/ast_type1.pdf}
+  \caption{Type1の例}
+  \label{fig:AST_type1}
+\end{figure}
+
+Type2では演算子以外の葉ノードを除いたASTが一致する．
+本研究では，2.1節で示したコードクローン研究における標準的な定義に従い，演算子を構文構造の一部として扱うため，演算子を葉ノードから除いた．
+図~\ref{fig:AST_type2}に示した例では，赤く示した部分がソースコード上で異なる部分である．
+葉ノードとして除かれるノードを灰色で，比較対象として残るノードを黒で示している．
+黒く示されたノードの名前が同一であるため，Type2と判断される．
+
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/ast_type2.pdf}
   \caption{Type2の例}
   \label{fig:AST_type2}
 \end{figure}
 
-Type3では単文を除いたASTが一致する．
-単文として定義するノードを表~\ref{tab:statement_nodes}示す．これらはTree-sitterで用いられるノードで定義される．これらのノードを親ノードとして持つノードもType3では除かれる．
-図~\ref{fig:AST_type3}に示した例では，緑で示した葉ノードと，赤で示した単文を表すノード以下のノードを除いたASTが一致する．
+Type3では単文以降のノードを除いたASTが一致する．
+% 単文として定義するノードを表~\ref{tab:statement_nodes}示す．これらはTree-sitterで用いられるノードで定義される．これらのノードを親ノードとして持つノードもType3では除かれる．
+Javaにおいて，単文として定義される文を表~\ref{tab:statement_java}に示す．
+図~\ref{fig:AST_type3}に示した例では，Type2の例に加え，return\_statementノードが単文にあたるため，
+それ以下のノードが除かれる．黒く示されたノードの名前が同一であるため，Type3と判断される．
 
-\begin{figure}[ht]
-  \centering
-  \includegraphics[width=1\textwidth]{images/example_Type3.pdf}
-  \caption{Type3の例}
-  \label{fig:AST_type3}
-\end{figure}
-
-\begin{table}[ht]
+\begin{table}[t]
 \centering
-\caption{単文として定義するノードと役割}
-\label{tab:statement_nodes}
+\caption{Javaにおいて単文として定義される文の例}
+\label{tab:statement_java}
 \begin{tabular}{lp{10cm}} 
 \hline
-\textbf{ノード} & \textbf{説明} \\ \hline
-expression\_statement & 式(代入，メソッド呼び出し，インクリメント等)を文として完結させたもの \\
-local\_variable\_declaration & メソッド内でローカル変数を宣言する文, 型と識別子を保持する\\
-declaration & クラス，インタフェース，またはフィールド等の宣言全般を指す広義のノード \\
-return\_statement & メソッドの実行を終了し，呼び出し元へ値を返す制御文 \\
-throw\_statement & 例外を明示的にスローし，通常の実行フローを中断する文 \\
-break\_statement & ループ(for, while等)やswitchブロックから直ちに脱出するための制御文 \\
-continue\_statement & ループの現在の反復を終了し，次の反復処理へスキップするための文 \\
-yield\_statement & switch式において，値を返してブロックを終了するための文(Java 13以降) \\
-assert\_statement & プログラムの前提条件を検証するための表明文. デバッグや検証に用いられる.  \\ \hline
+\textbf{単文} & \textbf{例} \\ \hline
+代入文 & x = a + b; \\
+メソッド呼び出し文 & System.out.println(s);\\
+ローカル変数宣言文 & int count = 0; \\
+Return文 & return result; \\
+Throw文 & throw new IllegalArgumentException(); \\
+break & break; \\
+continue & continue; \\
+Yield文 & yield 100; \\
+Assert文 & assert list != null;  \\ \hline
 \end{tabular}
 \end{table}
 
 
+\begin{figure}[ht]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/ast_type3.pdf}
+  \caption{Type3の例}
+  \label{fig:AST_type3}
+\end{figure}
 
-\subsection{BigCloneBenchの分類結果}
+% \begin{table}[hb]
+% \centering
+% \caption{単文として定義するノードと役割}
+% \label{tab:statement_nodes}
+% \begin{tabular}{lp{10cm}} 
+% \hline
+% \textbf{ノード} & \textbf{説明} \\ \hline
+% expression\_statement & 式(代入，メソッド呼び出し，インクリメント等)を文として完結させたもの \\
+% local\_variable\_declaration & メソッド内でローカル変数を宣言する文, 型と識別子を保持する\\
+% declaration & クラス，インタフェース，またはフィールド等の宣言全般を指す広義のノード \\
+% return\_statement & メソッドの実行を終了し，呼び出し元へ値を返す制御文 \\
+% throw\_statement & 例外を明示的にスローし，通常の実行フローを中断する文 \\
+% break\_statement & ループ(for, while等)やswitchブロックから直ちに脱出するための制御文 \\
+% continue\_statement & ループの現在の反復を終了し，次の反復処理へスキップするための文 \\
+% yield\_statement & switch式において，値を返してブロックを終了するための文(Java 13以降) \\
+% assert\_statement & プログラムの前提条件を検証するための表明文. デバッグや検証に用いられる.  \\ \hline
+% \end{tabular}
+% \end{table}
 
-提案手法を用いてBigCloneBench内のクローンペアの分類を行った．その結果を表~\ref{tab:BCB_type}に示す．
 
-\begin{table}[ht]
+
+
+\section{評価実験}
+本節では，評価実験について述べる．
+
+\subsection{実験対象データセット}
+
+% \subsection{BigCloneBenchの分類結果}
+実験対象データセットとしてBigCloneBenchを用いた．
+提案手法を用いてBigCloneBench内のクローンペアの分類を行った結果を表~\ref{tab:BCB_type}に示す．
+
+\begin{table}[b]
 \centering
 \caption{提案手法によるBigCloneBenchの分類結果}
 \label{tab:BCB_type}
@@ -223,31 +294,25 @@ Type4(提案手法) & 0 & 0 & 10,345 & 74,992 & 8,403,230 \\ \hline
 \end{tabular}
 \end{table}
 
-BigCloneBenchのStrongly-Type3，Moderately-Type3，Weakly-Type3に分類されるクローンペアのうち，提案手法でType2と判断されたクローンペアの例をListing~\ref{code:type２}に示す．修飾子が異なるため，BigCloneBenchではModerately-Type3に分類されていた．
+% BigCloneBenchのStrongly-Type3，Moderately-Type3，Weakly-Type3に分類されるクローンペアのうち，提案手法でType2と判断されたクローンペアの例をListing~\ref{code:type２}に示す．修飾子が異なるため，BigCloneBenchではModerately-Type3に分類されていた．
 
 
-\begin{lstlisting}[caption={Type2と判断されたクローンペアの例}, label={code:type２}]
-// --- id 4644121 ---
-protected void copy (Reader reader, OutputStream outputs) throws IOException {
-    IOUtils.copy (reader, outputs);
-}
+% \begin{lstlisting}[caption={Type2と判断されたクローンペアの例}, label={code:type２}]
+% // --- id 4644121 ---
+% protected void copy (Reader reader, OutputStream outputs) throws IOException {
+%     IOUtils.copy (reader, outputs);
+% }
 
-// --- id 11088627 ---
-public static void copyWithoutClose (InputStream is, OutputStream os) throws IOException {
-    IOUtils.copy (is, os);
-    }
-\end{lstlisting}
+% // --- id 11088627 ---
+% public static void copyWithoutClose (InputStream is, OutputStream os) throws IOException {
+%     IOUtils.copy (is, os);
+%     }
+% \end{lstlisting}
 
-
-\section{評価実験}
-本説では，提案手法に対する評価実験について述べる．
-
-\subsection{実験目的}
-行の一致率で分類した元の分類と提案手法のどちらが，より人間の感覚に近いのかを評価するためである．
+本実験は，BigCloneBenchが行単位での構文的類似度に基づいて分類した場合と．提案手法で分類した場合のどちらがより人間の感覚に近いのかを評価することを目的としている．
 特に，分類の基準が明確でないType3, Type4のコードクローンを対象とする．
 
 \subsection{実験手順}
-
 被験者はコンピュータサイエンスを専攻する学生6人であり，いずれもJavaを用いたプログラミングの経験があり，基本的な構文を理解している．
 実験の対象となるクローンペアは以下である．
 
@@ -257,7 +322,8 @@ public static void copyWithoutClose (InputStream is, OutputStream os) throws IOE
 \end{itemize}
 
 これらのクローンペアのうち，どちらか一方が重複しているものを除き，長さの短いものからそれぞれ50個抽出し，合計100個のクローンペアを対象とした．
-被験者には，事前に，2.1節に記述したType3, Type4の定義を提示し，100個のクローンペアがどちらに分類されるべきかを判断してもらった．
+被験者には，事前に，2.1節に記述したコードクローン分類の定義を提示し，100個のクローンペアがどちらに分類されるべきかを判断してもらった．
+また，判断理由についても回答してもらった．
 
 \section{実験結果と考察}
 
