@@ -73,8 +73,6 @@
 コードクローンにバグが含まれているとバグの修正漏れを引き起こす原因になり，ソースコードの保守性が低下する要因の一つとなる~\cite{Roy2007}．
 また，互いにクローン関係であるソースコード片のペアを，クローンペアと呼ぶ．
 
-ソースコードの規模が大きくなると，ソースコード中のコードクローンの量も増加するため，手動でコードクローンを管理することは困難となる．そのため，ソースコード中から自動的にコードクローンを検出するツールが研究されている~\cite{Jiang2007,KamiyaTSE2002,Nicad}．
-
 一般にコードクローンは，構文的な類似度に基づき，以下の4種類に分類される~\cite{Roy2009}．
 
 \begin{description}
@@ -84,20 +82,72 @@
     \item[Type4] 構文は異なるが同じ機能を提供する
 \end{description}
 
-上記の定義において，Type3とType4の境界は曖昧である．
+% テキスト
+% Nicad~\cite{Nicad}あり
+% トークン
+% NIL~\cite{NIL}あり
+% CCFinder~\cite{KamiyaTSE2002}なし
+% SoucererCC~\cite{SourcererCC}あり
+% LVMapper~\cite{LVMapper}なし
+% AST
+% Deckard~\cite{Jiang2007}あり
+% Yang~\cite{YandCOMPSAC2018}なし
+% グラフ
+% CFG
+% StoneDetector~\cite{StoneDetector}なし
+% GroupDriod~\cite{GroupDroid}異色なし
+% PDG
+% CCGraph~\cite{CCGraph}なし
+
+\subsection{コードクローン検出ツール}
+
+ソースコードの規模が大きくなると，ソースコード中のコードクローンの量も増加するため，手動でコードクローンを管理することは困難となる．
+そのため，ソースコード中から自動的にコードクローンを検出するツールが研究されている~\cite{Jiang2007,KamiyaTSE2002,Nicad}．
+それぞれのツールについて表~\ref{tab:tool_comparison}に示す．
+表~\ref{tab:tool_comparison}では，コードクローン検出のための手法と，ツールがコードクローンを検出する際，Type分類のラベルを出力するか否かを示す．
+% 2.1節の定義において，Type3とType4の境界は曖昧である．
 コードクローン検出ツールはそれぞれ独自の中間表現(抽象構文木，依存グラフ，トークン列など)や類似度計算アルゴリズムを用いているため，
 同じソースコードからコードクローンを検出する場合でも検出されるコードクローンが異なったり，同じ箇所がコードクローンとして検出された場合でもその分類が異なったりする．
-その結果，コードクローン検出ツールの性能比較を目的としたツール間の比較や，機械学習モデルの学習に必要な高精度なデータの提供が困難となる．
-また，コードクローン検出ツールには，検出のみを行い，分類を行わないツールも存在する．それらのツールについても，Typeごとの比較を行うことはできない．
-本研究では，基準を明確にした統一的なラベリングを行うことで，ツール間での比較を可能にし，機械学習の学習データとして提供するの質の高いデータの作成を目的としている．
+また，コードクローン検出ツールには，検出のみを行い，分類を行わないツールも存在する．
+
+
+\begin{table}[!b]
+\centering
+\caption{既存のコードクローン検出ツール}
+\label{tab:tool_comparison}
+\begin{tabular}{lllc}\hline
+手法 &  & ツール名/著者名 & ラベルの有無 \\ \hline
+テキストベース &  & Nicad~\cite{Nicad} & あり \\ 
+\multirow{3}{*}{トークンベース} &  & NIL~\cite{NIL} & あり \\ \hline
+ & & CCFinder~\cite{KamiyaTSE2002} & なし \\
+ & & SoucererCC~\cite{SourcererCC} & あり \\
+ & & LVMapper~\cite{LVMapper} & なし \\ \hline
+\multirow{1}{*}{抽象構文木ベース} &  & Deckard~\cite{Jiang2007} & あり \\ \hline
+\multirow{4}{*}{グラフ} & \multirow{3}{*}{CFGベース}& Yang~\cite{YandCOMPSAC2018} & なし \\
+ &  & StoneDetector~\cite{StoneDetector} & なし \\
+ & & GroupDroid~\cite{GroupDroid} & なし \\ 
+ & PDGベース & CCGraph~\cite{CCGraph} & なし \\ \hline
+\end{tabular}
+\end{table}
+
+機械学習ツール~\cite{ZhangICSE2019,Feng2020,BuiICSE2021,LiICSME2017,Saini2018,Zhao2018,Li2025}
+学習にBigCloneBench~\cite{li2025}
+評価~\cite{Zhao2018}
+
+
+
+
+
 
 \subsection{BigCloneBench}
 % 既存の大規模なベンチマークとその問題点
 BigCloneBenchは，コードクローン検出器の性能評価で用いられるJavaの大規模なベンチマークである~\cite{BigCloneBench}．
-複数のソフトウェアプロジェクトから収集された大規模リポジトリ群であるIJDataset2.0から，特定の機能を実装する可能性のあるソースコードを自動で特定し，
+複数のソフトウェアプロジェクトから収集した大規模データセットIJDataset2.0から，特定の機能を実装している可能性のあるソースコードを自動で特定し，
 対象の機能を正しく実装しているか否かのタグ付が手動で行われている．
 
-BigCloneBenchでは，Type3及びType4のコードクローンを，行単位での構文的類似度に基づいて0以上1未満の範囲で，以下のように分類している．
+BigCloneBenchでは，Type1，Type2のコードクローンは，ソースコードの正規化後テキストが一致するかで判定している．
+それらに属さない，Type3及びType4のコードクローンは，行単位での構文的類似度に基づいて0以上1未満の範囲で，次のように分類される．
+この構文的類似度は，行の一致する割合で求められる．
 
 \begin{description}
     \item[Strongly-Type3] 0.7以上1.0未満
@@ -105,10 +155,11 @@ BigCloneBenchでは，Type3及びType4のコードクローンを，行単位で
     \item[Weakly-Type3] 0.0以上0.5未満
 \end{description}
 
-既存のコードクローン検出ツールや機械学習を用いたコードクローン検出の研究において，Weakly-Type3クローンはType4クローンとして用いられている~\cite{AlamICSME2025,PinkuICSME2024,WangICSE2023,YuICSE2025,ZhangICCQ2024}．
+コードクローン検出ツールの研究において，Weakly-Type3クローンはType4クローンとして用いられている~\cite{AlamICSME2025,PinkuICSME2024,WangICSE2023,YuICSE2025,ZhangICCQ2024}．
 また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている\cite{WangICSE2023,YuICSE2025}．
-
 しかし，BigCloneBenchはタグ付けが不正確で，Type4コードクローンのデータとして扱うには不適切であることがいわれている~\cite{KrinkeIWSC2022,Krinke2025}. 
+BigCloneBenchをType-4クローンの検出性能評価に用いる場合，誤ったタグ付の影響で妥当性が脅されるため，
+Type-4クローンの検出を目標とする，機械学習を用いたコードクローン検出手法における評価に対する結果の信頼性が低下する．
 
 
 % 検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
@@ -117,18 +168,20 @@ BigCloneBenchでは，Type3及びType4のコードクローンを，行単位で
 
 \subsection{抽象構文木(AST)}
 ASTとはソースコードの構文構造を木構造で表現したデータ構造である．
+ASTにおいて，各頂点(ノード)はプログラムを構成する構文要素を表し，各辺はそれら要素間の論理的な親子関係や入れ子構造を表す．
+この親子関係に基づき，ASTは階層的な構造を持つ．
 
-以下にASTに関する用語を示す．また，図~\ref{fig:AST_discription}にASTの例を示す．
+以下にASTに関する用語を示す．また，図~\ref{fig:AST_discription}にソースコード例とそれに対応するASTを示す．
 
 \begin{description}
-    \item[根ノード] 親を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では青く示されたprogramノードである．
-    \item[葉ノード] 子を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では緑で示された二つのノードである．斜体で示されているのがそのノードの持つ値である．
+    \item[根ノード] 親を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では青く示されたmethod\_declarationノードである．
+    \item[葉ノード] 子を持たないノードを指す~\cite{Fan2021ICSE}．図~\ref{fig:AST_discription}では緑で示されたノードである．斜体で示されているのがそのノードの持つ値である．
 \end{description}
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.8\textwidth]{images/AST_discription.pdf}
-  \caption{ASTの例}
+  \caption{ソースコード例と対応するAST}
   \label{fig:AST_discription}
 \end{figure}
 
@@ -144,7 +197,7 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 % もちろん図を使って．どんなに長くなってもいいのでちゃんとした説明を入れてください
 
 あるソースコードに含まれるコードクローンを検出するため，現在では様々なコードクローン検出ツールが存在する．
-それらのツールは様々なソースコードに対して単一で用いられコードクローンの検出を行っている．
+現状では，それらのツールは様々なソースコードに対して単一で用いられコードクローンの検出を行っている(図~\ref{fig:motivation_1})．
 各コードクローン検出ツールは，異なるアルゴリズムを利用してコードクローン検出を行う．
 例えば，CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}はトークンベース，Nicad~\cite{Nicad}はテキストベースの検出器である．
 単一のコードクローン検出ツールを用いた検出では，偏りがあり，検出したいコードクローンを全て検出できるわけではない．
@@ -152,12 +205,12 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.5\textwidth]{images/motivation_fig1.pdf}
-  \caption{Type1の例}
+  \caption{コードクローン検出の現状}
   \label{fig:motivation_1}
 \end{figure}
 
-検出されるコードクローンの偏りを軽減するため，複数の検出ツールを対象ソースコードに実行することが考えられる．
-複数のツールを実行することで可能な限り多様なコードクローンの検出を試みる．
+検出されるコードクローンの偏りを軽減するため，複数の検出ツールを対象ソースコードに実行することが考えられる(図~\ref{fig:motivation_2})．
+複数のツールを実行することで可能な限り多様なコードクローンの検出を試みることが考えられる．
 しかし，各ツールにおけるコードクローンの定義が異なるため，検出後にどのTypeに分類されるかのラベリング結果が統一されない問題が起こる．
 例えば，ある関数Aとある関数Bがツール1によってType3として検出された場合に，別のツール2では，Type4として検出される場合がある．
 また，コードクローンの大規模データベース作成の際にも，この問題が発生する．
@@ -167,21 +220,21 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=0.7\textwidth]{images/motivation_fig2.pdf}
-  \caption{Type1の例}
+  \includegraphics[width=0.8\textwidth]{images/motivation_fig2.pdf}
+  \caption{コードクローン検出の問題}
   \label{fig:motivation_2}
 \end{figure}
 
-この問題を解決するため，提案手法では，コードクローン検出の後処理としての統一的なラベリングを行う．
+この問題を解決するため，提案手法では，コードクローン検出の後処理としての統一的なラベリングを行う(図~\ref{fig:motivation_3})．
 これにより，複数ツールから検出されたコードクローンに一貫した分類に基づいたラベリングを行うことができる．
 統一的なラベリングを行うことで，それぞれのツールの検出結果を単一のデータセットに統合することが可能となる．
-コードクローン情報の質が向上し，コードクローンデータを他の研究や開発に利用しやすくなる．
+これにより，コードクローン情報の質が向上し，コードクローンデータを他の研究や開発に利用しやすくなる．
 例えば，LLMの学習用データとしての利用が挙げられ，LLMベースの超高精度なクローン検出の実現が見込まれる．
 
 \begin{figure}[t]
   \centering
   \includegraphics[width=1\textwidth]{images/motivation_fig3.pdf}
-  \caption{Type1の例}
+  \caption{提案手法による解決策}
   \label{fig:motivation_3}
 \end{figure}
 
@@ -196,37 +249,37 @@ Tree-sitterは多くのプログラミング言語に対応していることか
 
 
 \section{提案手法}
-本研究では，コードクローンの分類の新たな定義として抽象構文木を用いた分類を行う．
-図~\ref{fig:sub_a}に示すように，従来のコードクローン分析では，特定のツールの検出結果をそのまま利用する．
-そのため，ツールによってラベルが異なる，あるいは，出力にラベルを含まれないという課題が発生する．
-これは，ツール間の比較や，機械学習への高精度な学習データの提供を困難にする．
+本節では，本研究で提案するコードクローン検出の後処理としての統一的なラベリング手法について述べる．
+% 図~\ref{fig:sub_a}に示すように，従来のコードクローン分析では，特定のツールの検出結果をそのまま利用する．
+% そのため，ツールによってラベルが異なる，あるいは，出力にラベルを含まれないという課題が発生する．
+% これは，ツール間の比較や，機械学習への高精度な学習データの提供を困難にする．
 
-しかし，図~\ref{fig:sub_b}に示すように，コードクローン検出ツールによって，コードクローン検出ののち，
-提案手法によって統一された基準基づいたラベリングを行うことで，ツールによらないラベルが得られ，ツール間の比較や機械学習への高精度な学習データの提供が可能となる．
+% しかし，図~\ref{fig:sub_b}に示すように，コードクローン検出ツールによって，コードクローン検出ののち，
+% 提案手法によって統一された基準基づいたラベリングを行うことで，ツールによらないラベルが得られ，ツール間の比較や機械学習への高精度な学習データの提供が可能となる．
 
-\begin{figure}[t]
-    \centering
-    % 上の図 (a)
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics[width=0.6\textwidth]{images/flow_before.pdf}
-        \caption{従来の流れ}
-        \label{fig:sub_a}
-    \end{subfigure}
+% \begin{figure}[t]
+%     \centering
+%     % 上の図 (a)
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \includegraphics[width=0.6\textwidth]{images/flow_before.pdf}
+%         \caption{従来の流れ}
+%         \label{fig:sub_a}
+%     \end{subfigure}
     
-    \vspace{1cm} % 図と図の間の垂直方向の隙間を調整
+%     \vspace{1cm} % 図と図の間の垂直方向の隙間を調整
     
-    % 下の図 (b)
-    \begin{subfigure}{\textwidth}
-        \centering
-        \includegraphics[width=0.9\textwidth]{images/flow_after.pdf}
-        \caption{提案手法を用いた場合の流れ}
-        \label{fig:sub_b}
-    \end{subfigure}
+%     % 下の図 (b)
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \includegraphics[width=0.9\textwidth]{images/flow_after.pdf}
+%         \caption{提案手法を用いた場合の流れ}
+%         \label{fig:sub_b}
+%     \end{subfigure}
     
-    \caption{従来の方法と提案手法を用いた場合の違い}
-    \label{fig:ast_comparison}
-\end{figure}
+%     \caption{従来の方法と提案手法を用いた場合の違い}
+%     \label{fig:ast_comparison}
+% \end{figure}
 
 
 
@@ -257,10 +310,15 @@ ASTの木の形状と，斜体で示された値が完全に同一である場�
 \end{figure}
 
 Type2では演算子以外の葉ノードを除いたASTが一致する．
-本研究では，2.1節で示したコードクローン研究における標準的な定義に従い，演算子を構文構造の一部として扱うため，演算子を葉ノードから除いた．
+% 本研究では，2.1節で示したコードクローン研究における標準的な定義に従い，演算子を構文構造の一部として扱うため，演算子を葉ノードから除いた．
+ASTにおける演算子の表現形式はパーサの実装仕様に強く依存する．
+例えば，一部のパーサでは演算子が二項演算ノードの下位に独立した葉ノードとして定義されるが，
+別のパーサではノード自体の属性値として保持される．
+実装の差異が存在するため，本手法では，演算子を葉ノードから除いた．
 図~\ref{fig:AST_type2}に示した例では，赤く示した部分がソースコード上で異なる部分である．
 葉ノードとして除かれるノードを灰色で，比較対象として残るノードを黒で示している．
 黒く示されたノードを持つASTの形状が同一であるため，Type2と判断される．
+
 
 \begin{figure}[t]
   \centering
@@ -273,9 +331,9 @@ Type3では単文以下のノードを除いたASTが一致する．
 % 単文として定義するノードを表~\ref{tab:statement_nodes}示す．これらはTree-sitterで用いられるノードで定義される．これらのノードを親ノードとして持つノードもType3では除かれる．
 Javaにおいて，単文として定義される文を表~\ref{tab:statement_java}に示す．
 図~\ref{fig:AST_type3}に示した例では，Type2の例に加え，return\_statementノードが単文にあたるため，
-それ以下のノードが除かれる．黒く示されたノードの名前が同一であるため，Type3と判断される．
+それ以下のノードが除かれる．黒く示されたノードを持つASTの形状が同一であるため，Type3と判断される．
 
-\begin{table}[b]
+\begin{table}[!b]
 \centering
 \caption{Javaにおいて単文として定義される文の例}
 \label{tab:statement_java}
@@ -335,7 +393,7 @@ assert文 & assert list != null;  \\ \hline
 実験対象データセットとしてBigCloneBenchを用いた．
 提案手法を用いてBigCloneBench内のクローンペアの分類を行った結果を表~\ref{tab:BCB_type}に示す．
 
-\begin{table}[b]
+\begin{table}[!b]
 \centering
 \caption{提案手法によるBigCloneBenchの分類結果}
 \label{tab:BCB_type}
