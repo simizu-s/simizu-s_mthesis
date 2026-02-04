@@ -230,13 +230,49 @@ Type1〜3といった構文的なカテゴリへの詳細なラベリングま�
 % 評価~\cite{Zhao2018,Saini2018,BuiICSE2021}
 % ,Feng2020 CodeBERT
 
+\subsection{コードクローンのデータセット}
+
+既存のコードクローンデータセットを表~\ref{tab:codeclone_dataset}に示す．
+BigCloneBench~\cite{BigCloneBench}は，Java プロジェクトを対象とした世界最大規模のデータセットである．
+800万件を超える膨大なクローンペアを収録しており，Type1 から Type4 までを網羅していることから，
+多くのクローン検出ツールの評価においてデファクトスタンダードとして利用されている．
+本研究においても，手法の有効性を検証するための主要なデータソースとして活用する．
+
+% % 2．意味的クローンおよび多言語への対応
+近年では，字面や構文が大きく異なるType4に特化したデータセットや，
+多言語を対象としたものが登場している．SemanticCloneBench~\cite{SemanticCloneBench}は 
+Java, Python, C, C\# の4言語にまたがる 4,000 件のペアを提供し，意味的等価性の評価に主眼を置いている．
+また，GPTCloneBench~\cite{GPTCloneBench}は，近年の大規模言語モデル（LLM）の進展を背景に構築された新しいデータセットであり，
+Java, Python, C\# における 3万件以上のペアを収録している．
+
+% % 3．機能等価性と検証用オラクル
+特定の言語において高い精度で検証を行うためのデータセットも存在する．
+FEMPD~\cite{FEMPDataset,HigoMSR2022}は Java の機能等価なメソッドペア（Functional Equivalent Method Pairs）
+に焦点を当てており，高精度な解析が求められる研究で重用されている．
+一方で，Clone oracle~\cite{CloneOracle}は 66 件と小規模ではあるが，C/C++ における厳密な正解（オラクル）を提供しており，
+手法の基本的な正当性を検証する際の重要なリファレンスとなっている．
+
+
+\begin{table}[!b]
+\centering
+\caption{コードクローンのデータセット}
+\label{tab:codeclone_dataset}
+\begin{tabular}{ccr}
+\hline
+データセット名 & 言語 & データ数 \\ \hline
+BigCloneBench~\cite{BigCloneBench} & Java & 8,612,826 \\
+Clone oracle~\cite{CloneOracle} & C/C++ & 66 \\
+SemanticCloneBench~\cite{SemanticCloneBench} & Java,Python,C,C\# & 4,000 \\
+GPTCloneBench~\cite{GPTCloneBench} & Java,Python,C\# & 37,149 \\
+FEMPD~\cite{FEMPDataset,HigoMSR2022} & Java & 1,342 \\ \hline
+\end{tabular}
+\end{table}
 
 
 
 
 
-
-\subsection{BigCloneBench}
+\subsubsection{BigCloneBench}
 % 既存の大規模なベンチマークとその問題点
 BigCloneBenchは，コードクローン検出器の性能評価で用いられるJavaの大規模なベンチマークである~\cite{BigCloneBench}．
 複数のソフトウェアプロジェクトから収集した大規模データセットIJDataset2.0から，特定の機能を実装している可能性のあるソースコードを自動で特定し，
@@ -262,6 +298,20 @@ Type-4クローンの検出を目標とする，機械学習を用いたコー�
 % 検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
 % 学習データとして用いてる~\cite{WangICSE2023},~\cite{YuICSE2025}
 % harmfl~\cite{KrinkeIWSC2022}
+
+BigCloneBenchに含まれるそれぞれのTypeに分類されたクローンペアの数は表~\ref{tab:BCB_numbers}に示す通りである．
+
+\begin{table}[!b]
+\centering
+\caption{BigCloneBenchに含まれるコードクローンの分類}
+\label{tab:BCB_numbers}
+\begin{tabular}{rrrrrr}
+\hline
+Type1 & Type2 & Strongly-Type3 & Moderately-Type3 & Weakly-Type3 & 合計\\ \hline
+48,116 & 4,234 & 21,966 & 88,306 & 8,450,204 & 8,612,826\\ \hline
+\end{tabular}
+\end{table}
+
 
 \subsection{抽象構文木(AST)}
 ASTとはソースコードの構文構造を木構造で表現したデータ構造である．
@@ -293,12 +343,6 @@ ASTにおいて，各頂点(ノード)はプログラムを構成する構文要
 これに対し，Tree-sitterは多言語共通のインターフェースを提供しており，将来的な他言語への拡張性が高いことから選択した．
 
 \section{本研究の動機}
-% 前回と今回の原稿を見てずっと思っているんですが，研究の動機付けを重視していない気がする．
-% なぜ独立したラベリングが必要なのが原稿にちゃんと書かれていない．
-% スライドを作ったんでこれを参考にして，「本研究の動機」という独立した章を作ってもらえますか．
-% そこでこのスライドの内容を自分なりにかみ砕いて記述してください．
-% このスライドの通りにしなくて自分が書きやすいストーリーでいいので背景をちゃんと説明してください．
-% もちろん図を使って．どんなに長くなってもいいのでちゃんとした説明を入れてください
 
 ソースコードに含まれるコードクローンを検出するため，現在では様々なコードクローン検出ツールが存在する．
 現状では，それらのツールは様々なソースコードに対して単一で用いられコードクローンの検出を行っている(図~\ref{fig:motivation_1})．
@@ -471,6 +515,12 @@ assert文 & assert list != null;  \\ \hline
 \end{tabular}
 \end{table}
 
+% BigCloneBenchにこの研究での分類を追加したデータセットを作るようにいったはず．それに対する記述が必要．
+% データセットのサイズや分布（オリジナルとの比較含む）．データセットの作成に要した時間，使ったPCのスペック．
+% この修論では被験者実験しかできていないが，今後はもっと実験必要ははずです．
+% 時間がないからしかたなく被験者実験に落とし込んだはず．どのようなことをする必要があるのかを書いてください．
+% if や while ブロックの条件式部分について，どのようにあつかっているのかの記述がない．できれば図も追加．現在の図（図５～７）をそのように変えてもよい
+
 
 
 
@@ -483,7 +533,11 @@ assert文 & assert list != null;  \\ \hline
 
 % \subsection{BigCloneBenchの分類結果}
 実験対象データセットとしてBigCloneBenchを用いた．
+提案手法を用いてBigCloneBenchに含まれるクローンペアに対して分類を行った．
+分類にはMacBookAirを使用し，AppleM2チップ(10コアCPU)，メモリに24GBを搭載している．
+Javaののバージョンは25.0.1を利用した．
 提案手法を用いてBigCloneBench内のクローンペアの分類を行った結果を表~\ref{tab:BCB_type}に示す．
+データセットの構築に要した総時間は35時間49分であった．
 
 \begin{table}[!b]
 \centering
@@ -491,12 +545,14 @@ assert文 & assert list != null;  \\ \hline
 \label{tab:BCB_type}
 \begin{tabular}{ccrrrrr}
 \hline
+& & & & BigCloneBench & & \\
  & & Type1 & Type2 & Strongly-Type3 & Moderately-Type3 & Weakly-Type3 \\ \hline
 \multirow{4}{*}{提案手法} & Type1 & 48,116 & 0 & 0 & 0 & 0 \\
 & Type2 & 0 & 4,234 & 3,637 & 12  & 1  \\
 & Type3 & 0 & 0 & 7,984 & 13,302 & 46,973  \\
 & Type4 & 0 & 0 & 10,345 & 74,992 & 8,403,230 \\ \hline
 & 合計 & 48,116 & 4,234 & 21,966 & 88,306 & 8,450,204 \\ \hline
+% 時間　&  & 9:55 min &  40.8 s & 4:34 min & 10:29 min & 1 d 11:23 h \\ \hline
 \end{tabular}
 \end{table}
 
@@ -514,6 +570,8 @@ assert文 & assert list != null;  \\ \hline
 %     IOUtils.copy (is, os);
 %     }
 % \end{lstlisting}
+
+
 
 
 \subsection{実験手順}
@@ -537,34 +595,92 @@ BigCloneBenchに含まれるクローンペアは，いずれもメソッド単�
 
 \subsection{実験結果}
 
-結果を図に示す．
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=1\textwidth]{images/agreement_violin_plot.pdf}
+  \caption{評価実験の結果}
+  \label{fig:result_experimet}
+\end{figure}
+
+結果を図~\ref{fig:result_experimet}に示す．
 BigCloneBenchでStrongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペアは，
-人間の感覚に反するという結果になった
+28.3\%がType4と判断され，提案手法が人間の感覚に反するという結果になった．
 一方，Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペアは，
-人間の感覚に近いという結果になった．
+71.0\%がType3と判断され，提案手法が人間の感覚に近いという結果になった．
 また，全体的にType3と判断されたクローンペアの数が多かった．
-それぞれについて，被験者による評価と乖離した場合，一致した場合，評価が分かれた場合についてコードを確認し，分析を行った．
+それぞれについて，被験者による判断と提案手法が一致した場合，異なった場合，被験者の中で判断が分かれた場合についてコードを確認し，分析を行った．
 以降に詳細を述べる．
 
-\subsubsection{提案手法でType4}
-提案手法の分類は人間の感覚に反するという結果になった．
+\subsubsection{Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペア}
+本項では，提案手法によってType4と分類されたものの，被験者による評価ではType3と判定されたクローンペアについて詳細を述べる．
+実験の結果，提案手法の分類は人間の感覚に反するという結果になった．
 被験者6人のうち，6人全員がType4と判断したクローンペアは存在せず，
-最大で4人がType4と判断したクローンペアが50ペア中2ペア存在した．
-一方，6人全員がType3と判断したクローンペアは3つ存在した．
-そのうち2つについて例を示しながら詳細を述べる．
+最大で4人がType4と判断したクローンペアは，50ペア中2ペアに留まった．
+一方で，被験者全員がType3と判断したクローンペアは3ペア存在した．
+それぞれについて，AST構造の差異に着目して分析する．
 
-
-\begin{figure}[h]
+\begin{minipage}{\textwidth}
     \centering
-    % --- (a) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        % キャプションを下に配置
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+    % キャプションを上に置く場合はここに記述（名前を揃えるため）
+    \makeatletter
+    \def\@captype{lstlisting}
+    \makeatother
+    \caption{被験者6人中4人が提案手法と同じType4と判断したクローンペアの例}
+    \label{code:experimet_pair56}
+
+    % 1つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
+        basicstyle=\small\ttfamily]
+public static final void randomShuffle (int [] v, Random r) {
+    while (-- n > 0) {
+        int k = r.nextInt (n + 1);
+        int temp = v [n];
+        v [n] = v [k];
+        v [k] = temp;
+    }
+}
+    \end{lstlisting}
+
+    \vspace{0.5em} % コード間の隙間
+
+    % 2つ目のコード
+    \begin{lstlisting}[
+        escapechar=|,  % エスケープ文字として | を指定
+        basicstyle=\small\ttfamily]
+public static synchronized void shuffle (int [] anArray) {
+    int n = anArray.length;
+    for (int i = n - 1;
+    i >= 1; i --) {
+        int j = randomSource.nextInt (i + 1);
+        int temp = anArray [j];
+        anArray [j] = anArray [i];
+        anArray [i] = temp;
+    }
+}
+    \end{lstlisting}
+\end{minipage}
+
+ソースコード~\ref{code:experimet_pair56}は被験者6人中4人が提案手法と同じType4と判断したクローンペアの例である．
+この例では，一方がwhile文，他方がfor文という異なる制御構造を含んでいるため，
+ASTの構造的差異に基づき，提案手法ではType4と判定された．
+この例のように制御構造そのものが異なるクローンペアに対しては，
+提案手法による分類が被験者の主観評価に近いことが確認された．
+
+% \noindent % インデントを無効化
+\begin{minipage}{\textwidth}
+    \centering
+    % キャプションを上に置く場合はここに記述（名前を揃えるため）
+    \makeatletter
+    \def\@captype{lstlisting}
+    \makeatother
+    \caption{被験者全員が提案手法とは異なるType3と判断したクローンペアの例(while文の条件式の違い)}
+    \label{code:experimet_pair34}
+
+    % 1つ目のコード
+    \begin{lstlisting}[
+        escapechar=|,  % エスケープ文字として | を指定
+        basicstyle=\small\ttfamily]
 private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
     byte [] buf = new byte [2048];
     int read;
@@ -572,20 +688,14 @@ private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws
 
     inFile.close ();
 }
-        \end{lstlisting}
-        \subcaption{Code 1の構成}
-    \end{subfigure}
+    \end{lstlisting}
 
-    \vspace{1.5em} % 上下のコードの間の隙間
+    \vspace{0.5em} % コード間の隙間
 
-    % --- (b) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+    % 2つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
+        basicstyle=\small\ttfamily]
 private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
     byte [] buf = new byte [2048];
     int read;
@@ -593,33 +703,76 @@ private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws
 
     inFile.close ();
 }
-        \end{lstlisting}
-        \subcaption{Code 2の構成}
-    \end{subfigure}
-
-    \caption{被験者全員がType3と判断したクローンペアの例}
-    \label{code:experimet_pair34}
-\end{figure}
+    \end{lstlisting}
+\end{minipage}
 
 
-Listing~\ref{code:experimet_pair34}は，黄色で示されたwhile文の条件式でASTに差異が生じ，提案手法ではType4と判断された．
-被験者の判断基準によると，条件式のみが異なるため，Type3の定義の文の変更にあたるとしてType3と判断していた．
-現在の実装では，while文，if文，for文等の条件式を内包する構文に対して，条件式が異なる場合は，ASTが異なると判定される．
-実装の変更を行うことで，条件式内の変更を許容する判定にすることが考えられる．
-これにより，より人間の感覚に近い分類ができると考える．
-
-
-\begin{figure}[h]
-    \centering
+% \begin{figure}[h]
+%     \centering
     % --- (a) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        % キャプションを下に配置
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         % キャプションを下に配置
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
+%     byte [] buf = new byte [2048];
+%     int read;
+%     while (|\colorbox{highlightorange}{(read = inFile.read (buf)) > 0 \&\& ! stopped}|) outFile.write (buf, 0, read);
+
+%     inFile.close ();
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 1の構成}
+%     \end{subfigure}
+
+%     \vspace{1.5em} % 上下のコードの間の隙間
+
+%     % --- (b) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
+%     byte [] buf = new byte [2048];
+%     int read;
+%     while (|\colorbox{highlightorange}{(read = inFile.read (buf)) > 0}|) outFile.write (buf, 0, read);
+
+%     inFile.close ();
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 2の構成}
+%     \end{subfigure}
+
+%     \caption{被験者全員がType3と判断したクローンペアの例}
+%     \label{code:experimet_pair34}
+% \end{figure}
+
+次に，被験者全員が提案手法と異なるType3と判断したクローンペアの例を示す．
+ソースコード~\ref{code:experimet_pair34}は，強調表示されたwhile文の条件式においてASTに差異が生じたため，提案手法ではType4と判断された．
+しかし，被験者の判断では，条件式のみの変更はの変更は文の変更に相当し，Type3の定義の範疇に収まるとしてType3と判断していた．
+現在の実装では，while文，if文，for文等の制御構造において，内包される条件式のAST構造が異なる場合は一律にType4と判定される．
+今後は，制御構文内の条件式における軽微な変更を許容するよう判定ロジックを修正することで，より人間の直感に近い分類が可能になると考えられる．
+
+\begin{minipage}{\textwidth}
+    \centering
+    % キャプションを上に置く場合はここに記述（名前を揃えるため）
+    \makeatletter
+    \def\@captype{lstlisting}
+    \makeatother
+    \caption{被験者全員が提案手法と異なるType3と判断したクローンペアの例(引数の違い)}
+    \label{code:experimet_pair57}
+
+    % 1つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
+        basicstyle=\small\ttfamily]
 public static final void copy (|\colorbox{highlightorange}{InputStream is, OutputStream os}|) throws IOException {
     try {
         IOUtils.copy (is, os);
@@ -628,20 +781,14 @@ public static final void copy (|\colorbox{highlightorange}{InputStream is, Outpu
         IOUtils.closeQuietly (os);
     }
 }
-        \end{lstlisting}
-        \subcaption{Code 1の構成}
-    \end{subfigure}
+    \end{lstlisting}
 
-    \vspace{1.5em} % 上下のコードの間の隙間
+    \vspace{0.5em} % コード間の隙間
 
-    % --- (b) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+    % 2つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
+        basicstyle=\small\ttfamily]
 public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String uri, OutputStream output}|) throws IOException {
     InputStream in = getURLInputStream (ua, uri);
     try {
@@ -650,129 +797,279 @@ public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String 
         IOUtils.closeQuietly (in);
     }
 }
-        \end{lstlisting}
-        \subcaption{Code 2の構成}
-    \end{subfigure}
+    \end{lstlisting}
+\end{minipage}
 
-    \caption{被験者全員がType3と判断したクローンペアの例}
-    \label{code:experimet_pair57}
-\end{figure}
+% \begin{figure}[h]
+%     \centering
+%     % --- (a) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         % キャプションを下に配置
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public static final void copy (|\colorbox{highlightorange}{InputStream is, OutputStream os}|) throws IOException {
+%     try {
+%         IOUtils.copy (is, os);
+%     } finally {
+%         IOUtils.closeQuietly (is);
+%         IOUtils.closeQuietly (os);
+%     }
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 1の構成}
+%     \end{subfigure}
+
+%     \vspace{1.5em} % 上下のコードの間の隙間
+
+%     % --- (b) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String uri, OutputStream output}|) throws IOException {
+%     InputStream in = getURLInputStream (ua, uri);
+%     try {
+%         IOUtils.copy (in, output);
+%     } finally {
+%         IOUtils.closeQuietly (in);
+%     }
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 2の構成}
+%     \end{subfigure}
+
+%     \caption{被験者全員がType3と判断したクローンペアの例}
+%     \label{code:experimet_pair57}
+% \end{figure}
 
 
-Listing~\ref{code:experimet_pair57}は，与えられた引数によってASTに差異が生じ，提案手法ではType4と判断された．
+ソースコード~\ref{code:experimet_pair57}は，メソッド呼び出しにおける引数の数が異なっていたため，
+ASTに差異が生じ，提案手法ではType4と判断された．
+しかし，被験者は，引数の増減もType3における文の変更の一部であると判断した．
+引数の数や順序の変更についても，条件式と同様に，特定のノード間での差異を許容するアルゴリズムを導入することで，
+Type3として分類が可能である．
+
+提案手法の厳密な構造比較はType4の特定に寄与する一方で，
+人間が文のバリエーションとして許容する範囲をType4と過剰に判定する傾向があることが示唆された．
+これらの知見に基づき，特定の構文要素に対する判定基準を柔軟に調整することが，
+今後の精度向上における重要な課題である．
 
 
-\begin{figure}[h]
+% \begin{figure}[h]
+%     \centering
+%     % --- (a) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         % キャプションを下に配置
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public static synchronized void shuffle (int [] anArray) {
+%     int n = anArray.length;
+%     for (int i = n - 1;
+%     i >= 1; i --) {
+%         int j = randomSource.nextInt (i + 1);
+%         int temp = anArray [j];
+%         anArray [j] = anArray [i];
+%         anArray [i] = temp;
+%     }
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 1の構成}
+%     \end{subfigure}
+
+%     \vspace{1.5em} % 上下のコードの間の隙間
+
+%     % --- (b) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public static synchronized void shuffle (int [] anArray) {
+%     int n = anArray.length;
+%     for (int i = n - 1;
+%     i >= 1; i --) {
+%         int j = randomSource.nextInt (i + 1);
+%         int temp = anArray [j];
+%         anArray [j] = anArray [i];
+%         anArray [i] = temp;
+%     }
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 2の構成}
+%     \end{subfigure}
+
+%     \caption{被験者六人中四人がType4と判断したクローンペアの例}
+%     \label{code:experimet_pair56}
+% \end{figure}
+
+
+\subsubsection{Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア}
+
+本項では，Weakly-Type3に分類されるペアのうち，提案手法によってType3と判定されたケースについて述べる．
+実験の結果，提案手法の分類が人間の感覚に近いという結果になった．
+具体的には，被験者6人全員が Type-3 と判断したペアが9件存在した．
+一方で，被験者全員がType4と判断したペアは存在せず，最大で5人がType4と判断したペアが50件中2件確認された．
+以下にその詳細を述べる．
+
+ソースコード~\ref{code:experimet_pair11}は，被験者全員が提案手法と同じType3と判断したクローンペアの例である．
+この例では，互いに共通する文を多く含んでおり，被験者はその内容の類似性からType3と判断したと考えられる．
+
+\begin{minipage}{\textwidth}
     \centering
-    % --- (a) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        % キャプションを下に配置
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+    % キャプションを上に置く場合はここに記述（名前を揃えるため）
+    \makeatletter
+    \def\@captype{lstlisting}
+    \makeatother
+    \caption{被験者全員が提案手法と同じType3と判断したクローンペアの例}
+    \label{code:experimet_pair11}
+
+    % 1つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
-public static synchronized void shuffle (int [] anArray) {
-    int n = anArray.length;
-    for (int i = n - 1;
-    i >= 1; i --) {
-        int j = randomSource.nextInt (i + 1);
-        int temp = anArray [j];
-        anArray [j] = anArray [i];
-        anArray [i] = temp;
-    }
-}
-        \end{lstlisting}
-        \subcaption{Code 1の構成}
-    \end{subfigure}
-
-    \vspace{1.5em} % 上下のコードの間の隙間
-
-    % --- (b) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
-        escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
-public static synchronized void shuffle (int [] anArray) {
-    int n = anArray.length;
-    for (int i = n - 1;
-    i >= 1; i --) {
-        int j = randomSource.nextInt (i + 1);
-        int temp = anArray [j];
-        anArray [j] = anArray [i];
-        anArray [i] = temp;
-    }
-}
-        \end{lstlisting}
-        \subcaption{Code 2の構成}
-    \end{subfigure}
-
-    \caption{被験者六人中二人がType4と判断したクローンペアの例}
-    \label{code:experimet_pair56}
-\end{figure}
-
-
-\subsubsection{提案手法でType3}
-
-\begin{figure}[h]
-    \centering
-    % --- (a) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        % キャプションを下に配置
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
-        escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
-public String hash (String s) throws NoSuchAlgorithmException {
-    MessageDigest md;
-    md = MessageDigest.getInstance ("SHA-1");
+        basicstyle=\small\ttfamily]
+private byte [] generateHash (String s) throws NoSuchAlgorithmException {
+    MessageDigest md = MessageDigest.getInstance ("MD5");
     md.update (s.getBytes ());
-    return Hex.toHex (md.digest ());
+    return md.digest ();
 }
-        \end{lstlisting}
-        \subcaption{Code 1の構成}
-    \end{subfigure}
+    \end{lstlisting}
 
-    \vspace{1.5em} % 上下のコードの間の隙間
+    \vspace{0.5em} % コード間の隙間
 
-    % --- (b) のコード ---
-    \begin{subfigure}{\textwidth}
-        \centering
-        \begin{lstlisting}[
-        label={code:experimet_pair57},
+    % 2つ目のコード
+    \begin{lstlisting}[
         escapechar=|,  % エスケープ文字として | を指定
-        basicstyle=\small\ttfamily,
-        captionpos=b] 
-public static String encryptSHA (String pwd) throws NoSuchAlgorithmException {
-    MessageDigest d = java.security.MessageDigest.getInstance ("SHA-1");
-    d.reset ();
-    d.update (pwd.getBytes ());
-    BASE64Encoder encoder = new BASE64Encoder ();
-    return encoder.encode (d.digest ());
+        basicstyle=\small\ttfamily]
+private static byte [] finalizeStringHash (String loginHash) throws NoSuchAlgorithmException {
+    MessageDigest md5Hasher;
+    md5Hasher = MessageDigest.getInstance ("MD5");
+    md5Hasher.update (loginHash.getBytes ());
+    md5Hasher.update (LOGIN_FINAL_SALT);
+    return md5Hasher.digest ();
 }
-        \end{lstlisting}
-        \subcaption{Code 2の構成}
-    \end{subfigure}
+    \end{lstlisting}
+\end{minipage}
 
-    \caption{意見が割れたクローンペアの例}
-    \label{code:experimet_pair36}
-\end{figure}
+一方，ソースコード~\ref{code:experimet_pair55}は，被験者6人のうち5人が提案手法と異なるType4と判断した例である．
+この例では，機能は同一であるが，構文的に異なるとして被験者はType4と判断していた．
+
+\begin{minipage}{\textwidth}
+    \centering
+    % キャプションを上に置く場合はここに記述（名前を揃えるため）
+    \makeatletter
+    \def\@captype{lstlisting}
+    \makeatother
+    \caption{被験者6人中5人が提案手法と異なるType4と判断したクローンペアの例}
+    \label{code:experimet_pair55}
+
+    % 1つ目のコード
+    \begin{lstlisting}[
+        escapechar=|,  % エスケープ文字として | を指定
+        basicstyle=\small\ttfamily]
+private void javaToHtml (File source, File destination) throws IOException {
+    Reader reader = new FileReader (source);
+    Writer writer = new FileWriter (destination);
+    JavaUtils.writeJava (reader, writer);
+    writer.flush ();
+    writer.close ();
+}
+    \end{lstlisting}
+
+    \vspace{0.5em} % コード間の隙間
+
+    % 2つ目のコード
+    \begin{lstlisting}[
+        escapechar=|,  % エスケープ文字として | を指定
+        basicstyle=\small\ttfamily]
+public static void copy (InputStream stream, OutputStream ostream) throws IOException {
+    IOUtils.copy (stream, ostream, false);
+}
+    \end{lstlisting}
+\end{minipage}
+
+これらの例に対し，提案手法がType3と判定した要因は，単文以下のノードを除いた後のASTの形状が同一であったためである．
+しかし，極端な例として，メソッド本体が一つの単文のみで構成されるコードと，大量の単文を含むコードであっても，
+それらが同じ制御構造の中に配置されていれば，本手法ではASTが同一であると見なされ，Type3に分類されてしまう．
+実験の結果，このような規模の著しい乖離がある場合には，Type3と分類することが人間の直感から離れる原因になると示唆された．
+したがって，単文以下のノードを除く際，何らかの制約を設ける必要があると考えられる．
+具体的な改善策として，以下の2点が考えられる．
+\begin{itemize}
+    \item 単文の数による制約：追加または削除された単文の数に閾値を設け，構文的な乖離が一定範囲を超えないように制限する方法である．
+    \item 文の種類や文脈に応じたフィルタリング：ソースコード中の全ての単文を一律に取り除くのではなく，例えばメソッド呼び出しを伴う文の変更のみを個別に評価するなど，変更を許容する要素を文脈に応じて動的に選択する方法である．
+\end{itemize}
+% まず，単文の数によって制限する．これは，単純に追加される，または削除される単文の数に閾値を設けることで，
+% 構文的にかけ離れないようにする方法である．
+% 次に，メソッド呼び出し後の単文の変更のみをみるなどの，
+% ソースコード中の単文に対して変更を許容するか否かのフィルターを設ける方法である．
+
+% \begin{figure}[h]
+%     \centering
+%     % --- (a) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         % キャプションを下に配置
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public String hash (String s) throws NoSuchAlgorithmException {
+%     MessageDigest md;
+%     md = MessageDigest.getInstance ("SHA-1");
+%     md.update (s.getBytes ());
+%     return Hex.toHex (md.digest ());
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 1の構成}
+%     \end{subfigure}
+
+%     \vspace{1.5em} % 上下のコードの間の隙間
+
+%     % --- (b) のコード ---
+%     \begin{subfigure}{\textwidth}
+%         \centering
+%         \begin{lstlisting}[
+%         label={code:experimet_pair57},
+%         escapechar=|,  % エスケープ文字として | を指定
+%         basicstyle=\small\ttfamily,
+%         captionpos=b] 
+% public static String encryptSHA (String pwd) throws NoSuchAlgorithmException {
+%     MessageDigest d = java.security.MessageDigest.getInstance ("SHA-1");
+%     d.reset ();
+%     d.update (pwd.getBytes ());
+%     BASE64Encoder encoder = new BASE64Encoder ();
+%     return encoder.encode (d.digest ());
+% }
+%         \end{lstlisting}
+%         \subcaption{Code 2の構成}
+%     \end{subfigure}
+
+%     \caption{意見が割れたクローンペアの例}
+%     \label{code:experimet_pair36}
+% \end{figure}
 
 \subsubsection{被験者ごとの傾向}
-被験者6人の回答について，判断基準から二分されると考える．
-それは，判断の際，注目する箇所が構文構造であるか，同一の機能をもつかという点である．
-前者は，2.1節のType3の定義に基づき，クローンペアで異なる部分が，文の挿入，削除，変更による違いである場合にType3，
-そうでない場合にType4と判断していた．
-一方，後者は，2.1節のType4の定義に基づき，同一の処理を行う場合にType4，行わない場合にType3と判断していた．
-この基準の違いが，判定に影響を与えたと考えられる．
-図~\ref{code:experimet_pair36}では，前者はType3と，後者はType4と判断していた．
-このように，判断が割れる原因になる．
+被験者6人の回答を分析した結果，その判断基準は大きく2つの傾向に類別できる．
+具体的には，評価の際に構文構造の差異を重視する立場と，処理機能の同一性を重視する立場の違いである．
+前者のグループは，2.1節のType3の定義に基づき，クローンペア間で異なる部分が，文の挿入，削除，変更に留まる場合にはType3と判断し，
+それ以上の構文の変更が見られる場合にType4と判断していた．
+一方，後者のグループは，2.1節のType4の定義に基づき，同一の処理を行う場合にType4，行わない場合にType3と判断していた．
+このような被験者間における判断基準の不一致が，同一のクローンペアに対して異なる分類が行われる要因になったと考えられる．
+% 図~\ref{code:experimet_pair36}では，前者はType3と，後者はType4と判断していた．
+% このように，判断が割れる原因になる．
 
 \section{妥当性への脅威}
 
