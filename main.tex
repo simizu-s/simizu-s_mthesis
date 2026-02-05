@@ -79,13 +79,14 @@
 
 \section{はじめに}
 
-コードクローンとは，プログラムテキスト中の一致または類似するコード片である~\cite{Inoue2001}.
+\textcolor{blue}{コードクローンとは，プログラムテキスト中の一致または類似するコード片である~\cite{Inoue2001}.
 コードクローンにバグが含まれているとバグの修正漏れを引き起こす原因になり，ソースコードの保守性が低下する要因の一つとなる~\cite{Roy2007}．
 コードクローンは，構文的な類似度に基づいてType1，Type2，Type3，Type4の4種類に分類される~\cite{Roy2009}．
 ソースコードの規模が大きくなると，手動でコードクローンを管理することは困難となる．
 そのため，コードクローンを自動で検出するツールの研究が行われている．
+}
 
-現状では，ソースコード中のコードクローン検出は，単一のツールを用いて行われる．
+\textcolor{blue}{現状では，ソースコード中のコードクローン検出は，単一のツールを用いて行われる．
 様々なコードクローン検出ツールが存在するが，それらは，検出する際に用いる中間表現や計算アルゴリズムが異なる．
 例えば，NiCad~\cite{Nicad}は行単位での検出，
 CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位での検出を行う．
@@ -97,21 +98,34 @@ CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位での検出を行�
 また，ツールによっては，コードクローンの検出は行うものの，分類は行わないツールも存在する．
 ラベリング結果が異なることや，ラベリングが行われないことは，複数ツールから得られたクローン検出結果を用いて
 大規模なコードクローンのデータベースを作成する際に，単一のデータセットとして統合ができないという問題が発生する．
+}
 
-
-この問題解決のため，本論文では，コードクローン検出後の後処理として統一的なラベリング手法を提案する．
+\textcolor{blue}{この問題解決のため，本論文では，コードクローン検出後の後処理として統一的なラベリング手法を提案する．
 提案手法では，抽象構文木を用いて，コードクローンの分類を行う．
 % 抽象構文木の持つノードの種類によって分類を行い，
 提案手法を用いることで，複数の検出ツールから検出されたコードクローンに対し，統一されたラベリングを行うことができる．
 統一的なラベリングが行われたコードクローンは単一のデータセットに統合が可能となり，コードクローンデータを他の研究や開発に利用しやすくなる．
+}
 
-本研究では，評価実験として被験者実験を行った．
+\textcolor{blue}{本研究では，評価実験として被験者実験を行った．
+被験者実験では，コードクローンの大規模データセットであるBigCloneBench~\cite{BigCloneBench}に含まれるクローンペアを対象とし，
+BigCloneBenchによる分類と，提案手法による分類のどちらが人間の感覚に近いかを調査した．
+その結果，BigCloneBenchでType3に分類され，提案手法でType4と分類されたクローンペアについては，
+BigCloneBenchの分類の方が，人間の感覚に近いことがわかった．
+一方，BigCloneBenchでType4に分類され，提案手法でType3と分類されたクローンペアについては，
+提案手法による分類の方が，人間の感覚に近いことがわかった．
+これらの結果から，分類の定義について修正を行う必要性が示唆された．
+定義の修正を行うことで，人間の感覚により近い分類が可能となる．
+また，被験者ごとの傾向から，Type3およびType4のコードクローンの分類の定義の曖昧さが示唆され，
+本研究の目的である，統一的なラベリング手法の必要性が改めて確認された．
+}
 
-以降，2章では，本研究で用いる技術について述べる．
+\textcolor{blue}{以降，2章では，本研究で用いる技術について述べる．
 3章では，本研究の動機について述べる．
 4章では，提案手法の詳細について述べる．
 5章では，評価実験の詳細について述べ，6章でその結果と考察を述べる．
 7章では，妥当性の脅威を述べ，8章では，まとめと今後の課題について述べる．
+}
 
 
 % \textcolor{blue}{
@@ -120,6 +134,8 @@ CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位での検出を行�
 
 
 \section{準備}
+
+% 本章では，コードクローン，コードクローン検出ツール，コードクローンのデータセット，抽象構文木について述べる，
 
 \subsection{コードクローン}
 % Type分類について
@@ -142,22 +158,6 @@ CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位での検出を行�
 
 上記のType3，Type4の境界は曖昧であるため，コードクローン検出ツールによって分類の基準が異なる．
 
-% テキスト
-% Nicad~\cite{Nicad}あり
-% トークン
-% NIL~\cite{NIL}あり
-% CCFinder~\cite{KamiyaTSE2002}なし
-% SoucererCC~\cite{SourcererCC}あり
-% LVMapper~\cite{LVMapper}なし
-% AST
-% Deckard~\cite{Jiang2007}あり
-% Yang~\cite{YandCOMPSAC2018}なし
-% グラフ
-% CFG
-% StoneDetector~\cite{StoneDetector}なし
-% GroupDriod~\cite{GroupDroid}異色なし
-% PDG
-% CCGraph~\cite{CCGraph}なし
 
 \subsection{コードクローン検出ツール}
 
@@ -166,31 +166,31 @@ CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位での検出を行�
 ~\cite{StoneDetector,iClones,Jiang2007,KamiyaTSE2002,GroupDroid,NIL,Nicad,SourcererCC,YandCOMPSAC2018,CCGraph}．
 
 % 1. 行単位および字句単位の手法
-行単位の手法として代表的なNiCad~\cite{Nicad}は，ソースコードの整形と正規化を行う．
-行の一致率を見ることでコードクローンの検出が可能であり，
-Type1からType3までのラベリングが可能な点が特徴である．
+行単位で解析を行う手法として代表的なNiCad~\cite{Nicad}は，ソースコードの整形と正規化を行い，
+行の一致率を見ることでコードクローンの検出を行う．
+検出だけでなく．Type1からType3までのラベリングを行う．
 
-字句単位の手法は，ソースコードをトークン列に変換して比較を行う．
+字句単位で解析を行う手法は，ソースコードをトークン列に変換して比較を行う．
 CCFinder~\cite{KamiyaTSE2002}やiClones~\cite{iClones}，LVMapper~\cite{LVMapper}は
 大規模なプロジェクトから高速にクローンを抽出することに長けているが，
-出力結果はコードクローンがどこに含まれるかの情報のみであり，クローンタイプのラベリングは行われない．
+出力結果はコードクローンがどこに含まれるかの情報のみであり，どのTypeに分類されるかのラベリングは行われない．
 一方で，NIL~\cite{NIL}やSourcererCC~\cite{SourcererCC}は，
-トークンの類似度計算に基づいたラベリング機能を備えている．
+トークンの類似度計算に基づいたラベリングを行う．
 
 % 2. 構文構造（AST）単位の手法
-抽象構文木を利用する手法は，ソースコードを構文解析して木構造を構築し，その構造的類似度を比較する．
-Deckard~\cite{Jiang2007}は，抽象構文木のサブツリーを多次元ベクトルへと変換し，LSH(Locality Sensitive Hashing)
-を用いることで，文の挿入・削除を伴うType3クローンを効率的に検出する．
-この手法は構文的な根拠に基づいた比較を行うため，クローンタイプに応じたラベリングが可能である．
+\textcolor{blue}{2.4節で述べる抽象構文木を利用する手法として，Deckard~\cite{Jiang2007}が挙げられる．
+% ソースコードを構文解析して木構造を構築し，その構造的類似度を比較する．
+% Deckard~\cite{Jiang2007}は，抽象構文木のサブツリーを多次元ベクトルへと変換し，LSH(Locality Sensitive Hashing)
+% を用いることで，文の挿入・削除を伴うType3クローンを効率的に検出する．
+この手法は構文的な根拠に基づいた比較を行うため，分類に応じたラベリングが可能である．}
 
 % 3. グラフ単位の手法
-プログラム依存グラフ（PDG）や制御フローグラフ（CFG）を利用するグラフ単位の手法は，
-Type4検出を主な目的とする．
+グラフ形式の中間表現を用いる手法は，主にType4クローンの検出を目的とする．
 Yangらの手法~\cite{YandCOMPSAC2018}，StoneDetector~\cite{StoneDetector}，GroupDroid~\cite{GroupDroid}，CCGraph~\cite{CCGraph}などがこれに該当する．
-これらの手法は，制御フローの構造が共通していればクローンとみなすため高度な解析が可能である一方，
-同型判定アルゴリズムに伴う高い計算コストが課題となる．
+これらの手法は，グラフの構造的一致を判定するため，記述形式に依存しない高度な解析が可能である．
+一方で，グラフの同型判定アルゴリズムは高い計算コストを伴う点が課題となる．
 また，これらのツールは，機能の等価性に焦点を当てているため，
-Type1〜3といった構文的なカテゴリへの詳細なラベリングまでは行わない．
+Type1からType3への詳細なラベリングまでは行わない．
 
 % まとめと本研究の立ち位置
 % 以上の通り、多くの検出ツール（特に字句ベースやグラフベース）は、クローンの抽出能力には優れているものの、検出結果に対して標準的なラベル（Type-1〜4）を付与する機能を持っていない。このことが、異なるツール間での結果の統合や、機械学習用の高品質なデータセット構築を困難にする要因となっている。本研究が提案する**「後処理としての統一的ラベリング手法」**は、これら既存ツールの出力結果を入力とし、一貫した基準でラベルを再付与することで、既存のクローン情報の利用価値を向上させるものである。
@@ -232,30 +232,26 @@ Type1〜3といった構文的なカテゴリへの詳細なラベリングま�
 
 \subsection{コードクローンのデータセット}
 
-既存のコードクローンデータセットを表~\ref{tab:codeclone_dataset}に示す．
-BigCloneBench~\cite{BigCloneBench}は，Java プロジェクトを対象とした世界最大規模のデータセットである．
-800万件を超える膨大なクローンペアを収録しており，Type1 から Type4 までを網羅していることから，
-多くのクローン検出ツールの評価においてデファクトスタンダードとして利用されている．
-本研究においても，手法の有効性を検証するための主要なデータソースとして活用する．
+\textcolor{blue}{既存のコードクローンデータセットを表~\ref{tab:codeclone_dataset}に示す．
+BigCloneBench~\cite{BigCloneBench}は，Javaプロジェクトを対象とした大規模なデータセットである．
+詳細については，2.3.1項で述べる．}
 
 % % 2．意味的クローンおよび多言語への対応
-近年では，字面や構文が大きく異なるType4に特化したデータセットや，
-多言語を対象としたものが登場している．SemanticCloneBench~\cite{SemanticCloneBench}は 
-Java, Python, C, C\# の4言語にまたがる 4,000 件のペアを提供し，意味的等価性の評価に主眼を置いている．
+\textcolor{blue}{近年では，同一の処理を行うものの，構文が大きく異なるType4に特化したデータセットや，
+多言語を対象としたデータセットが作成されている．
+SemanticCloneBench~\cite{SemanticCloneBench}は，Java, Python, C, C\#の4言語にまたがる4,000件のペアを提供する．
 また，GPTCloneBench~\cite{GPTCloneBench}は，近年の大規模言語モデル（LLM）の進展を背景に構築された新しいデータセットであり，
-Java, Python, C\# における 3万件以上のペアを収録している．
+Java, Python, C\#における3万件以上のペアが含まれる．}
 
 % % 3．機能等価性と検証用オラクル
-特定の言語において高い精度で検証を行うためのデータセットも存在する．
-FEMPD~\cite{FEMPDataset,HigoMSR2022}は Java の機能等価なメソッドペア（Functional Equivalent Method Pairs）
-に焦点を当てており，高精度な解析が求められる研究で重用されている．
-一方で，Clone oracle~\cite{CloneOracle}は 66 件と小規模ではあるが，C/C++ における厳密な正解（オラクル）を提供しており，
-手法の基本的な正当性を検証する際の重要なリファレンスとなっている．
+\textcolor{blue}{特定の言語において高い精度で検証を行うためのデータセットも存在する．
+FEMPD~\cite{FEMPDataset,HigoMSR2022}はJavaの機能等価なメソッドペアに焦点を当てており，高精度な解析が求められる研究で利用されている~\cite{InoueSERA2024,SomeyaICSME2025}．
+一方で，Clone oracle~\cite{CloneOracle}は66件と小規模ではあるが，C/C++ におけるクローンペアを提供している．}
 
 
 \begin{table}[!b]
 \centering
-\caption{コードクローンのデータセット}
+\caption{既存のコードクローンのデータセット}
 \label{tab:codeclone_dataset}
 \begin{tabular}{ccr}
 \hline
@@ -274,12 +270,13 @@ FEMPD~\cite{FEMPDataset,HigoMSR2022} & Java & 1,342 \\ \hline
 
 \subsubsection{BigCloneBench}
 % 既存の大規模なベンチマークとその問題点
-BigCloneBenchは，コードクローン検出器の性能評価で用いられるJavaの大規模なベンチマークである~\cite{BigCloneBench}．
+本研究で用いる，BigCloneBenchは，コードクローン検出器の性能評価で用いられるJavaの大規模なベンチマークである~\cite{BigCloneBench}．
 複数のソフトウェアプロジェクトから収集した大規模データセットIJDataset2.0から，特定の機能を実装している可能性のあるソースコードを自動で特定し，
 対象の機能を正しく実装しているか否かのタグ付けが手動で行われている．
+\textcolor{blue}{BigCloneBenchに含まれるクローンペアは，いずれもメソッド単位のコード片から構成される．}
 
-BigCloneBenchでは，Type1，Type2のコードクローンは，ソースコードの正規化後テキストの一致を確認することで判定している．
-一方，Type3及びType4のコードクローンは，行単位での構文的類似度に基づいて0以上1未満の範囲で，次のように分類される．
+BigCloneBenchでは，Type1およびType2のコードクローンは，ソースコードの正規化後テキストの一致を確認することで判定している．
+一方，Type3およびType4のコードクローンは，行単位での構文的類似度に基づいて0以上1未満の範囲で，次のように分類される．
 この構文的類似度は，行の一致する割合で求められる．
 
 \begin{description}
@@ -288,18 +285,18 @@ BigCloneBenchでは，Type1，Type2のコードクローンは，ソースコー
     \item[Weakly-Type3] 0.0以上0.5未満
 \end{description}
 
-コードクローン検出ツールの研究において，Weakly-Type3クローンはType4クローンとして用いられている~\cite{AlamICSME2025,Li2025,LiICSME2017,PinkuICSME2024,WangICSE2023,YuICSE2025,ZhangICCQ2024}．
+コードクローンの研究において，Weakly-Type3クローンはType4クローンとして用いられている~\cite{AlamICSME2025,Li2025,LiICSME2017,PinkuICSME2024,WangICSE2023,YuICSE2025,ZhangICCQ2024}．
 また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている\cite{Li2025,LiICSME2017,WangICSE2023,YuICSE2025,ZhangICSE2019}．
 しかし，BigCloneBenchは分類が不正確で，Type4コードクローンとして扱うには不適切であることが指摘されている~\cite{KrinkeIWSC2022,Krinke2025}. 
-BigCloneBenchをType-4クローンの検出性能評価に用いる場合，誤った分類の影響で評価の妥当性が脅されるため，
-Type-4クローンの検出を目標とする，機械学習を用いたコードクローン検出の評価結果に対する信頼性が低下する．
+BigCloneBenchをType-4クローンの検出性能評価に用いる場合，誤った分類の影響で結果の妥当性が脅されるため，
+Type4クローンの検出を目標とする，機械学習を用いたコードクローン検出の評価結果に対する信頼性が低下する．
 
 
 % 検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
 % 学習データとして用いてる~\cite{WangICSE2023},~\cite{YuICSE2025}
 % harmfl~\cite{KrinkeIWSC2022}
 
-BigCloneBenchに含まれるそれぞれのTypeに分類されたクローンペアの数は表~\ref{tab:BCB_numbers}に示す通りである．
+\textcolor{blue}{BigCloneBenchに含まれるそれぞれのTypeに分類されたクローンペアの数は表~\ref{tab:BCB_numbers}に示す通りである．}
 
 \begin{table}[!b]
 \centering
@@ -347,7 +344,9 @@ ASTにおいて，各頂点(ノード)はプログラムを構成する構文要
 ソースコードに含まれるコードクローンを検出するため，現在では様々なコードクローン検出ツールが存在する．
 現状では，それらのツールは様々なソースコードに対して単一で用いられコードクローンの検出を行っている(図~\ref{fig:motivation_1})．
 各コードクローン検出ツールは，異なるアルゴリズムを利用してコードクローン検出を行う．
-例えば，CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は字句単位，Nicad~\cite{Nicad}は行単位で解析を行う検出ツールである．
+例えば，CCFinder~\cite{KamiyaTSE2002}，NIL~\cite{NIL}は，\textcolor{blue}{ソースコードを
+トークン列に変換して比較する，字句単位の解析を行う．
+Nicad~\cite{Nicad}は行単位で解析を行う．これは，識別子の正規化やコードの整形といった前処理を適用した後の各行を比較することでコードクローンを検出する．}
 単一のコードクローン検出ツールを用いた検出では，偏りがあり，対象ソースコード中に存在する全てのコードクローンを全て検出できるわけではない．
 
 \begin{figure}[t]
@@ -521,23 +520,38 @@ assert文 & assert list != null;  \\ \hline
 % 時間がないからしかたなく被験者実験に落とし込んだはず．どのようなことをする必要があるのかを書いてください．
 % if や while ブロックの条件式部分について，どのようにあつかっているのかの記述がない．できれば図も追加．現在の図（図５～７）をそのように変えてもよい
 
+\textcolor{blue}{提案手法の分類定義におけるif文，while文等の制御構造を持つソースコードの扱いについて述べる．
+図~\ref{fig:AST_if}にif文のJavaプログラムと対応するASTを示す．
+簡単のため，一部省略している．
+この二つのコードでは，赤く示したif文の条件式の比較演算子が異なる．
+ASTで，葉ノードおよび単文以下のノードとして除かれるノードを灰色で示す．
+if文の条件式部分は単文として除かれないため，この例はType4と分類される．
+}
+
+
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.8\textwidth]{images/ast_if.pdf}
+  \caption{if文の例}
+  \label{fig:AST_if}
+\end{figure}
 
 
 
 \section{評価実験}
 本章では，評価実験について述べる．
 本実験は，BigCloneBenchが行単位での構文的類似度に基づいて分類した場合と．提案手法で分類した場合のどちらがより人間の感覚に近いのかを評価することを目的としている．
-特に，分類の基準が明確でないType3, Type4のコードクローンを対象とする．
+特に，分類の基準が明確でないType3およびType4のコードクローンを対象とした．
 
 \subsection{実験対象データセット}
 
 % \subsection{BigCloneBenchの分類結果}
 実験対象データセットとしてBigCloneBenchを用いた．
 提案手法を用いてBigCloneBenchに含まれるクローンペアに対して分類を行った．
-分類にはMacBookAirを使用し，AppleM2チップ(10コアCPU)，メモリに24GBを搭載している．
-Javaののバージョンは25.0.1を利用した．
+\textcolor{blue}{分類には，AppleM3チップ(8コアCPU)，メモリ24GBのMacBookAirを使用した．}
+Javaのバージョンは25.0.1を利用した．
 提案手法を用いてBigCloneBench内のクローンペアの分類を行った結果を表~\ref{tab:BCB_type}に示す．
-データセットの構築に要した総時間は35時間49分であった．
+\textcolor{blue}{分類}に要した総時間は35時間49分であった．
 
 \begin{table}[!b]
 \centering
@@ -577,17 +591,20 @@ Javaののバージョンは25.0.1を利用した．
 \subsection{実験手順}
 被験者はコンピュータサイエンスを専攻する博士前期課程の大学院生6人であり，いずれもJavaを用いたプログラミングの経験がある．
 以下のいずれかの基準を満たすクローンペアを本研究の調査対象とした．
+ペアを構成する二つのメソッドの合計トークン数が少ない順にそれぞれ50個，合計100個のクローンペアを対象とした．
+同一のメソッドが複数のペアに含まれる場合は，そのうち一組のみを抽出対象とした．
 
 \begin{itemize}
-    \item Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペア
-    \item Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア
+    \item \textcolor{blue}{BigCloneBenchで}Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペア
+    \item \textcolor{blue}{BigCloneBenchで}Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア
 \end{itemize}
 
-BigCloneBenchに含まれるクローンペアは，いずれもメソッド単位のコード片から構成される．
-同一のメソッドが複数のペアに含まれる場合は，そのうち一組のみを抽出対象とした．
-ペアを構成する二つのメソッドの合計トークン数が少ない順にそれぞれ50個，合計100個のクローンペアを対象とした．
 被験者には，事前に，2.1節に記述したコードクローン分類の定義を提示し，100個のクローンペアがどちらに分類されるべきかを判断してもらった．
-また，判断理由についても回答してもらった．
+また，\textcolor{blue}{判断に迷った場合にその理由と最終的な判断の理由についても回答してもらった．}
+
+
+
+
 
 \section{実験結果と考察}
 
@@ -604,15 +621,28 @@ BigCloneBenchに含まれるクローンペアは，いずれもメソッド単�
 
 結果を図~\ref{fig:result_experimet}に示す．
 BigCloneBenchでStrongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペアは，
-28.3\%がType4と判断され，提案手法が人間の感覚に反するという結果になった．
+28.3\%がType4と判断され，\textcolor{blue}{提案手法による分類}が人間の感覚に反するという結果になった．
 一方，Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペアは，
-71.0\%がType3と判断され，提案手法が人間の感覚に近いという結果になった．
+71.0\%がType3と判断され，\textcolor{blue}{提案手法による分類}が人間の感覚に近いという結果になった．
 また，全体的にType3と判断されたクローンペアの数が多かった．
-それぞれについて，被験者による判断と提案手法が一致した場合，異なった場合，被験者の中で判断が分かれた場合についてコードを確認し，分析を行った．
+それぞれについて，被験者による判断と\textcolor{blue}{提案手法による分類}が一致した場合，異なった場合，被験者の中で判断が分かれた場合についてコードを確認し，分析を行った．
 以降に詳細を述べる．
 
+\begin{table}[!b]
+\centering
+\caption{提案手法と一致する判断を行った人数の分布}
+\label{tab:result_plot}
+\begin{tabular}{crrrrrrr}
+\hline
+ & 0人 & 1人 & 2人 & 3人 & 4人 & 5人 & 6人\\ \hline
+Strongly & 0 & 0 & 2 & 9 & 14 & 22 & 3 \\ 
+Weakly & 9 & 16 & 8 & 15 & 0 & 2 & 0 \\ \hline
+% 時間　&  & 9:55 min &  40.8 s & 4:34 min & 10:29 min & 1 d 11:23 h \\ \hline
+\end{tabular}
+\end{table}
+
 \subsubsection{Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペア}
-本項では，提案手法によってType4と分類されたものの，被験者による評価ではType3と判定されたクローンペアについて詳細を述べる．
+\textcolor{blue}{本項では，BigCloneBenchによってStrongly-Type3と分類されたものの，提案手法ではType4と判定されたクローンペアについて詳細を述べる．}
 実験の結果，提案手法の分類は人間の感覚に反するという結果になった．
 被験者6人のうち，6人全員がType4と判断したクローンペアは存在せず，
 最大で4人がType4と判断したクローンペアは，50ペア中2ペアに留まった．
@@ -650,8 +680,7 @@ public static final void randomShuffle (int [] v, Random r) {
         basicstyle=\small\ttfamily]
 public static synchronized void shuffle (int [] anArray) {
     int n = anArray.length;
-    for (int i = n - 1;
-    i >= 1; i --) {
+    for (int i = n - 1; i >= 1; i --) {
         int j = randomSource.nextInt (i + 1);
         int temp = anArray [j];
         anArray [j] = anArray [i];
@@ -661,8 +690,8 @@ public static synchronized void shuffle (int [] anArray) {
     \end{lstlisting}
 \end{minipage}
 
-ソースコード~\ref{code:experimet_pair56}は被験者6人中4人が提案手法と同じType4と判断したクローンペアの例である．
-この例では，一方がwhile文，他方がfor文という異なる制御構造を含んでいるため，
+ソースコード~\ref{code:experimet_pair56}は被験者6人中4人が提案手法と同じType4と判断したクローンペアである．
+このクローンペアでは，一方がwhile文，他方がfor文という異なる制御構造を含んでいるため，
 ASTの構造的差異に基づき，提案手法ではType4と判定された．
 この例のように制御構造そのものが異なるクローンペアに対しては，
 提案手法による分類が被験者の主観評価に近いことが確認された．
@@ -756,9 +785,9 @@ private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws
 
 次に，被験者全員が提案手法と異なるType3と判断したクローンペアの例を示す．
 ソースコード~\ref{code:experimet_pair34}は，強調表示されたwhile文の条件式においてASTに差異が生じたため，提案手法ではType4と判断された．
-しかし，被験者の判断では，条件式のみの変更はの変更は文の変更に相当し，Type3の定義の範疇に収まるとしてType3と判断していた．
+しかし，被験者の判断では，条件式のみの変更は，文の変更に相当し，Type3の定義の範疇に収まるとしてType3と判断していた．
 現在の実装では，while文，if文，for文等の制御構造において，内包される条件式のAST構造が異なる場合は一律にType4と判定される．
-今後は，制御構文内の条件式における軽微な変更を許容するよう判定ロジックを修正することで，より人間の直感に近い分類が可能になると考えられる．
+今後は，制御構文内の条件式における軽微な変更を許容するよう判定ロジックを修正することで，より人間の直感に近い分類が可能になる．
 
 \begin{minipage}{\textwidth}
     \centering
@@ -850,7 +879,7 @@ public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String 
 % \end{figure}
 
 
-ソースコード~\ref{code:experimet_pair57}は，メソッド呼び出しにおける引数の数が異なっていたため，
+ソースコード~\ref{code:experimet_pair57}は，メソッドの\textcolor{blue}{仮引数}の数が異なっていたため，
 ASTに差異が生じ，提案手法ではType4と判断された．
 しかし，被験者は，引数の増減もType3における文の変更の一部であると判断した．
 引数の数や順序の変更についても，条件式と同様に，特定のノード間での差異を許容するアルゴリズムを導入することで，
@@ -918,7 +947,7 @@ Type3として分類が可能である．
 
 \subsubsection{Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア}
 
-本項では，Weakly-Type3に分類されるペアのうち，提案手法によってType3と判定されたケースについて述べる．
+本項では，BigCloneBenchでWeakly-Type3に分類されるペアのうち，提案手法によってType3と判定されたケースについて述べる．
 実験の結果，提案手法の分類が人間の感覚に近いという結果になった．
 具体的には，被験者6人全員が Type-3 と判断したペアが9件存在した．
 一方で，被験者全員がType4と判断したペアは存在せず，最大で5人がType4と判断したペアが50件中2件確認された．
@@ -1015,6 +1044,8 @@ public static void copy (InputStream stream, OutputStream ostream) throws IOExce
 % 次に，メソッド呼び出し後の単文の変更のみをみるなどの，
 % ソースコード中の単文に対して変更を許容するか否かのフィルターを設ける方法である．
 
+これらの変更により，より人間の直感に近い分類が可能になると考えられる．
+
 % \begin{figure}[h]
 %     \centering
 %     % --- (a) のコード ---
@@ -1070,6 +1101,27 @@ public static void copy (InputStream stream, OutputStream ostream) throws IOExce
 このような被験者間における判断基準の不一致が，同一のクローンペアに対して異なる分類が行われる要因になったと考えられる．
 % 図~\ref{code:experimet_pair36}では，前者はType3と，後者はType4と判断していた．
 % このように，判断が割れる原因になる．
+以上の結果は，コードクローンにおけるType3とType4の定義の曖昧さを示唆しており，
+本研究が目的とする統一的なラベリング手法の必要性が改めて確認された．
+
+\begin{table}[!b]
+\centering
+\caption{被験者間における実験回答の一致率}
+\label{tab:user_agreement}
+\small % 表全体の文字サイズを少し小さく調整
+\begin{tabular}{lcccccc}\hline
+ & P1 & P2 & P3 & P4 & P5 & P6 \\ \hline
+P1: ta1kmr & 100\% & 57\% & 64\% & 75\% & 55\% & 63\% \\
+P2: ry-inoue & 57\% & 100\% & 51\% & 54\% & 76\% & 74\% \\
+P3: i-kondou & 64\% & 51\% & 100\% & 63\% & 39\% & 45\% \\
+P4: g-kimura & 75\% & 54\% & 63\% & 100\% & 46\% & 52\% \\
+P5: c-yosida & 55\% & 76\% & 39\% & 46\% & 100\% & 78\% \\
+P6: tk-kawam & 63\% & 74\% & 45\% & 52\% & 78\% & 100\% \\ \hline
+% \addlinespace[0.5em]
+% \multicolumn{7}{l}{\footnotesize ※ P1--P6は各被験者の実験回答データを示す。} \\
+\end{tabular}
+\end{table}
+
 
 \section{妥当性への脅威}
 
