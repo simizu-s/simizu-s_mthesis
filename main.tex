@@ -289,7 +289,7 @@ BigCloneBenchでは，Type1およびType2のコードクローンは，ソース
 また，機械学習を用いたコードクローン検出手法において，BigCloneBenchは学習データとして用いられている\cite{Li2025,LiICSME2017,WangICSE2023,YuICSE2025,ZhangICSE2019}．
 しかし，BigCloneBenchは分類が不正確で，Type4コードクローンとして扱うには不適切であることが指摘されている~\cite{KrinkeIWSC2022,Krinke2025}. 
 BigCloneBenchをType-4クローンの検出性能評価に用いる場合，誤った分類の影響で結果の妥当性が脅されるため，
-Type4クローンの検出を目標とする，機械学習を用いたコードクローン検出の評価結果に対する信頼性が低下する．
+Type4クローンの検出を目標とする，機械学習を用いたコードクローン検出の評価結果に対する信頼性が低下する~\cite{KrinkeIWSC2022,Krinke2025}．
 
 
 % 検証用(評価用)データとして用いてる~\cite{ZhangICCQ2024},~\cite{AlamICSME2025},~\cite{PinkuICSME2024}
@@ -404,15 +404,16 @@ Nicad~\cite{Nicad}は行単位で解析を行う．これは，識別子の正�
 
 \textcolor{blue}{既存のコードクローンのデータセットとして最大のものはBigCloneBench~\cite{BigCloneBench}である．
 BigCloneBenchでは，Type1およびType2のコードクローンは，ソースコードの正規化後テキストの一致を確認することで判定している．
-一方，Type3およびType4のコードクローンは，行単位での構文的類似度に基づいて0以上1未満の範囲で，
-Strongly-Type3，Moderately-Type3，Weakly-Tyoe3の3種類に分類される．
+一方，Type3およびType4のコードクローンは，行単位での構文的類似度に基づいて0以上1未満の範囲で，3種類に分類される．
 この構文的類似度は，行の一致する割合で求められる．
-この分類について，
+具体的には，行単位の類似度が0.7以上1.0未満のペアをStrongly-Type3，0.0以上0.5未満のペアをWeakly-Type3と定義している．
 }
 
-\textcolor{blue}{BigCloneBenchに含まれるStrongly-Type3，Moderately-Type3，Weakly-Type3のコードクローンについて，
-トークンごとに比較を行い，一致率を計算した．
-トークン単位の類似度算出にあたっては，二つのトークン列間における最長共通部分系列(LCS: Longest Common Subsequence)~\cite{Hunt1977,Wagner1974}を用いた．
+
+\textcolor{blue}{本研究では，BigCloneBenchの各ペアに対し，行の一致率と字句単位の類似度の相関を調査した．
+具体的には，BigCloneBenchに含まれるStrongly-Type3，Moderately-Type3，Weakly-Type3のコードクローンについて，
+字句単位で比較を行い，一致率を計算した．
+字句単位の類似度算出にあたっては，二つのトークン列間における最長共通部分系列(LCS: Longest Common Subsequence)~\cite{Hunt1977,Wagner1974}を用いた．
 LCSは，トークンの出現順序を維持したまま，共通して現れる最長の系列を特定する手法である．
 単純な語彙の集合比較とは異なり，ソースコードの論理的な記述順序を反映した類似度を計測できるため，本分析の指標として採用した．
 具体的には，クローンペアの各トークン列を$S_1, S_2$としたとき，
@@ -420,6 +421,38 @@ LCSは，トークンの出現順序を維持したまま，共通して現れ�
 $$Sim_{LCS}(S_1, S_2) = \frac{|LCS(S_1, S_2)|}{\max(|S_1|, |S_2|)}$$
 }
 
+\begin{figure}[!t]
+  \centering
+  \includegraphics[width=0.9\textwidth]{images/lcs_probablitiy_hist_tokenized.pdf}
+  \caption{字句単位の類似度における行一致率の分布}
+  \label{fig:line_to_lcs}
+%   \vspace{0.5em} % キャプションとの間隔を微調整
+  {\footnotesize \textbf{注：} 赤い破線は，BigCloneBenchにおけるWeakly-Type3とModerately-Type3の
+  閾値である0.5と，Moderately-Type3とStrongly-Type3の閾値である0.7を表している}
+\end{figure}
+
+% \begin{figure}[!t]
+%   \centering
+%   \includegraphics[width=0.9\textwidth]{images/similarity_line_distribution_by_lcs_ratio.pdf}
+%   \caption{各行一致率における字句単位の類似度の分布}
+%   \label{fig:lcs_to_line}
+%   {\footnotesize \textbf{注：} 赤い破線は，BigCloneBenchにおけるWeakly-Type3とModerately-Type3の
+%   閾値である0.5と，Moderately-Type3とStrongly-Type3の閾値である0.7を表している}
+% \end{figure}
+
+\textcolor{blue}{算出結果を図~\ref{fig:line_to_lcs}に示す．
+解析の結果，行単位の分類と字句レベルの類似度の間には顕著な乖離が確認された．
+例えば，Strongly-Type3に分類されていたクローンペアについて，字句単位の類似度が閾値である0.7より小さくなるペアが存在し．
+また，Weakly-Type3についても，字句単位の類似度が閾値である0.5より大きくなるペアが存在した．
+% これは，特定の処理が少数の長い行に記述されているか，あるいは多数の短い行に分散しているかといった，表面的な記述形式の違いによって分類が左右されていることを示している．
+}
+
+\textcolor{blue}{以上の知見は，
+行単位や字句単位の一致率に基づく既存の分類基準が，コードクローンの分類指標として不十分であることを示唆しており，
+既存の分類基準に代わる新たな分類基準が必要であることを示す．
+したがって，提案手法では，ASTに基づいた新たなType分類の定義を用いる．
+ASTに基づいた分類基準を設けることで，ソースコードの表面的な記述形式に左右されず，プログラムの論理的な構造を反映した一貫性のある分類が可能となる．
+}
 
 
 \section{提案手法}
@@ -640,9 +673,24 @@ Javaのバージョンは25.0.1を利用した．
 
 \begin{figure}[t]
   \centering
-  \includegraphics[width=1\textwidth]{images/agreement_violin_plot.pdf}
-  \caption{評価実験の結果}
+  \includegraphics[width=0.8\textwidth]{images/agreement_bar_chart.pdf}
+  \caption{評価実験の結果：被験者の判断の割合}
   \label{fig:result_experimet}
+  {\footnotesize \textbf{注：} Stronglyは，BigCloneBenchによってStrongly-Type3と分類されるクローンペアのうち
+  提案手法でType4と分類されたクローンペアを示し，
+  Weaklyは，BigCloneBenchによってWeakly-Type3と分類されるクローンペアのうち
+  提案手法でType3と分類されたクローンペアを示す．}
+\end{figure}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=1\textwidth]{images/agreement_violin_plot.pdf}
+  \caption{評価実験の結果：被験者の分布}
+  \label{fig:result_experimet_violin}
+  {\footnotesize \textbf{注：} Stronglyは，BigCloneBenchによってStrongly-Type3と分類されるクローンペアのうち
+  提案手法でType4と分類されたクローンペアを示し，
+  Weaklyは，BigCloneBenchによってWeakly-Type3と分類されるクローンペアのうち
+  提案手法でType3と分類されたクローンペアを示す．}
 \end{figure}
 
 結果を図~\ref{fig:result_experimet}に示す．
@@ -651,7 +699,17 @@ BigCloneBenchでStrongly-Type3に分類されるクローンペアのうち提�
 一方，Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペアは，
 71.0\%がType3と判断され，\textcolor{blue}{提案手法による分類}が人間の感覚に近いという結果になった．
 また，全体的にType3と判断されたクローンペアの数が多かった．
-それぞれについて，被験者による判断と\textcolor{blue}{提案手法による分類}が一致した場合，異なった場合，被験者の中で判断が分かれた場合についてコードを確認し，分析を行った．
+
+\textcolor{blue}{提案手法と同じ判断をした被験者の人数ごとクローンペアの分布を図~\ref{fig:result_experimet_violin}に示す．
+また，提案手法と同じ判断をした被験者の人数ごとのクローンペアの数を表~\ref{tab:result_plot}に示す．
+Strongly-Type3に分類されるクローンペアのうち提案手法でType4と分類されたクローンペアは，
+分布の偏りから，判断に迷いが少ないことがわかる．
+一方，Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペアは，
+BigCloneBenchの分類を選んだのが3人，提案手法の分類を選んだの3人である場合，つまり意見が割れたクローンペアが
+多く存在することから，判断の迷いがあったと考える．
+}
+
+それぞれについて，被験者による判断と\textcolor{blue}{提案手法による分類}が一致した場合，異なった場合のコードを確認し，分析を行った．
 以降に詳細を述べる．
 
 \begin{table}[!b]
@@ -762,53 +820,6 @@ private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws
 \end{minipage}
 
 
-% \begin{figure}[h]
-%     \centering
-    % --- (a) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         % キャプションを下に配置
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
-%     byte [] buf = new byte [2048];
-%     int read;
-%     while (|\colorbox{highlightorange}{(read = inFile.read (buf)) > 0 \&\& ! stopped}|) outFile.write (buf, 0, read);
-
-%     inFile.close ();
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 1の構成}
-%     \end{subfigure}
-
-%     \vspace{1.5em} % 上下のコードの間の隙間
-
-%     % --- (b) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% private void writeFile (FileInputStream inFile, FileOutputStream outFile) throws IOException {
-%     byte [] buf = new byte [2048];
-%     int read;
-%     while (|\colorbox{highlightorange}{(read = inFile.read (buf)) > 0}|) outFile.write (buf, 0, read);
-
-%     inFile.close ();
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 2の構成}
-%     \end{subfigure}
-
-%     \caption{被験者全員がType3と判断したクローンペアの例}
-%     \label{code:experimet_pair34}
-% \end{figure}
-
 次に，被験者全員が提案手法と異なるType3と判断したクローンペアの例を示す．
 ソースコード~\ref{code:experimet_pair34}は，強調表示されたwhile文の条件式においてASTに差異が生じたため，提案手法ではType4と判断された．
 しかし，被験者の判断では，条件式のみの変更は，文の変更に相当し，Type3の定義の範疇に収まるとしてType3と判断していた．
@@ -855,54 +866,6 @@ public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String 
     \end{lstlisting}
 \end{minipage}
 
-% \begin{figure}[h]
-%     \centering
-%     % --- (a) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         % キャプションを下に配置
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public static final void copy (|\colorbox{highlightorange}{InputStream is, OutputStream os}|) throws IOException {
-%     try {
-%         IOUtils.copy (is, os);
-%     } finally {
-%         IOUtils.closeQuietly (is);
-%         IOUtils.closeQuietly (os);
-%     }
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 1の構成}
-%     \end{subfigure}
-
-%     \vspace{1.5em} % 上下のコードの間の隙間
-
-%     % --- (b) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public static void readFile (|\colorbox{highlightorange}{FOUserAgent ua, String uri, OutputStream output}|) throws IOException {
-%     InputStream in = getURLInputStream (ua, uri);
-%     try {
-%         IOUtils.copy (in, output);
-%     } finally {
-%         IOUtils.closeQuietly (in);
-%     }
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 2の構成}
-%     \end{subfigure}
-
-%     \caption{被験者全員がType3と判断したクローンペアの例}
-%     \label{code:experimet_pair57}
-% \end{figure}
 
 
 ソースコード~\ref{code:experimet_pair57}は，メソッドの\textcolor{blue}{仮引数}の数が異なっていたため，
@@ -911,64 +874,7 @@ ASTに差異が生じ，提案手法ではType4と判断された．
 引数の数や順序の変更についても，条件式と同様に，特定のノード間での差異を許容するアルゴリズムを導入することで，
 Type3として分類が可能である．
 
-提案手法の厳密な構造比較はType4の特定に寄与する一方で，
-人間が文のバリエーションとして許容する範囲をType4と過剰に判定する傾向があることが示唆された．
-これらの知見に基づき，特定の構文要素に対する判定基準を柔軟に調整することが，
-今後の精度向上における重要な課題である．
 
-
-% \begin{figure}[h]
-%     \centering
-%     % --- (a) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         % キャプションを下に配置
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public static synchronized void shuffle (int [] anArray) {
-%     int n = anArray.length;
-%     for (int i = n - 1;
-%     i >= 1; i --) {
-%         int j = randomSource.nextInt (i + 1);
-%         int temp = anArray [j];
-%         anArray [j] = anArray [i];
-%         anArray [i] = temp;
-%     }
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 1の構成}
-%     \end{subfigure}
-
-%     \vspace{1.5em} % 上下のコードの間の隙間
-
-%     % --- (b) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public static synchronized void shuffle (int [] anArray) {
-%     int n = anArray.length;
-%     for (int i = n - 1;
-%     i >= 1; i --) {
-%         int j = randomSource.nextInt (i + 1);
-%         int temp = anArray [j];
-%         anArray [j] = anArray [i];
-%         anArray [i] = temp;
-%     }
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 2の構成}
-%     \end{subfigure}
-
-%     \caption{被験者六人中四人がType4と判断したクローンペアの例}
-%     \label{code:experimet_pair56}
-% \end{figure}
 
 
 \subsubsection{Weakly-Type3に分類されるクローンペアのうち提案手法でType3と分類されたクローンペア}
@@ -1055,7 +961,63 @@ public static void copy (InputStream stream, OutputStream ostream) throws IOExce
     \end{lstlisting}
 \end{minipage}
 
-これらの例に対し，提案手法がType3と判定した要因は，単文以下のノードを除いた後のASTの形状が同一であったためである．
+
+\subsubsection{被験者ごとの傾向}
+\textcolor{blue}{被験者ごとのType3と判断したペア数を表~\ref{tab:user_type3_numbers}に，
+被験者間の回答の一致率を表~\ref{tab:user_agreement}に示す．
+}
+被験者6人の回答を分析した結果，その判断基準は大きく2つの傾向に類別できる．
+具体的には，評価の際に構文構造の差異を重視する立場と，処理機能の同一性を重視する立場の違いである．
+前者のグループは，2.1節のType3の定義に基づき，クローンペア間で異なる部分が，文の挿入，削除，変更に留まる場合にはType3と判断し，
+それ以上の構文の変更が見られる場合にType4と判断していた．
+一方，後者のグループは，2.1節のType4の定義に基づき，同一の処理を行う場合にType4，行わない場合にType3と判断していた．
+このような被験者間における判断基準の不一致が，同一のクローンペアに対して異なる分類が行われる要因になったと考えられる．
+% 図~\ref{code:experimet_pair36}では，前者はType3と，後者はType4と判断していた．
+% このように，判断が割れる原因になる．
+以上の結果は，コードクローンにおけるType3とType4の定義の曖昧さを示唆しており，
+本研究が目的とする統一的なラベリング手法の必要性が改めて確認された．
+
+
+
+\begin{table}[!b]
+\centering
+\caption{被験者ごとのType3と判断したペア数(100ペア中)}
+\label{tab:user_type3_numbers}
+% \small % 表全体の文字サイズを少し小さく調整
+\begin{tabular}{lcccccc}\hline
+ & P1 & P2 & P3 & P4 & P5 & P6 \\ \hline
+ペア数 & 75 & 74 & 53 & 66 & 78 & 82 \\ \hline
+\end{tabular}
+\end{table}
+
+\begin{table}[!b]
+\centering
+\caption{被験者間における実験回答の一致率}
+\label{tab:user_agreement}
+% \small % 表全体の文字サイズを少し小さく調整
+\begin{tabular}{lcccccc}\hline
+ & P1 & P2 & P3 & P4 & P5 & P6 \\ \hline
+P1 & 100\% & 57\% & 64\% & 75\% & 55\% & 63\% \\
+P2 & 57\% & 100\% & 51\% & 54\% & 76\% & 74\% \\
+P3 & 64\% & 51\% & 100\% & 63\% & 39\% & 45\% \\
+P4 & 75\% & 54\% & 63\% & 100\% & 46\% & 52\% \\
+P5 & 55\% & 76\% & 39\% & 46\% & 100\% & 78\% \\
+P6 & 63\% & 74\% & 45\% & 52\% & 78\% & 100\% \\ \hline
+% \addlinespace[0.5em]
+% \multicolumn{7}{l}{\footnotesize ※ P1--P6は各被験者の実験回答データを示す。} \\
+\end{tabular}
+\end{table}
+
+% P1: ta1kmr，: ry-inoue: i-kondou: g-kimura: c-yosida: tk-kawam
+
+\subsection{考察}
+
+6.1.1項の結果から，提案手法の厳密な構造比較はType4の特定に寄与する一方で，
+人間が文のバリエーションとして許容する範囲をType4と過剰に判定する傾向があることが示唆された．
+これらの知見に基づき，特定の構文要素に対する判定基準を柔軟に調整することが，
+今後の精度向上における重要な課題である．
+
+6.1.2項の例に対し，提案手法がType3と判定した要因は，単文以下のノードを除いた後のASTの形状が同一であったためである．
 しかし，極端な例として，メソッド本体が一つの単文のみで構成されるコードと，大量の単文を含むコードであっても，
 それらが同じ制御構造の中に配置されていれば，本手法ではASTが同一であると見なされ，Type3に分類されてしまう．
 実験の結果，このような規模の著しい乖離がある場合には，Type3と分類することが人間の直感から離れる原因になると示唆された．
@@ -1072,83 +1034,7 @@ public static void copy (InputStream stream, OutputStream ostream) throws IOExce
 
 これらの変更により，より人間の直感に近い分類が可能になると考えられる．
 
-% \begin{figure}[h]
-%     \centering
-%     % --- (a) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         % キャプションを下に配置
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public String hash (String s) throws NoSuchAlgorithmException {
-%     MessageDigest md;
-%     md = MessageDigest.getInstance ("SHA-1");
-%     md.update (s.getBytes ());
-%     return Hex.toHex (md.digest ());
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 1の構成}
-%     \end{subfigure}
 
-%     \vspace{1.5em} % 上下のコードの間の隙間
-
-%     % --- (b) のコード ---
-%     \begin{subfigure}{\textwidth}
-%         \centering
-%         \begin{lstlisting}[
-%         label={code:experimet_pair57},
-%         escapechar=|,  % エスケープ文字として | を指定
-%         basicstyle=\small\ttfamily,
-%         captionpos=b] 
-% public static String encryptSHA (String pwd) throws NoSuchAlgorithmException {
-%     MessageDigest d = java.security.MessageDigest.getInstance ("SHA-1");
-%     d.reset ();
-%     d.update (pwd.getBytes ());
-%     BASE64Encoder encoder = new BASE64Encoder ();
-%     return encoder.encode (d.digest ());
-% }
-%         \end{lstlisting}
-%         \subcaption{Code 2の構成}
-%     \end{subfigure}
-
-%     \caption{意見が割れたクローンペアの例}
-%     \label{code:experimet_pair36}
-% \end{figure}
-
-\subsubsection{被験者ごとの傾向}
-被験者6人の回答を分析した結果，その判断基準は大きく2つの傾向に類別できる．
-具体的には，評価の際に構文構造の差異を重視する立場と，処理機能の同一性を重視する立場の違いである．
-前者のグループは，2.1節のType3の定義に基づき，クローンペア間で異なる部分が，文の挿入，削除，変更に留まる場合にはType3と判断し，
-それ以上の構文の変更が見られる場合にType4と判断していた．
-一方，後者のグループは，2.1節のType4の定義に基づき，同一の処理を行う場合にType4，行わない場合にType3と判断していた．
-このような被験者間における判断基準の不一致が，同一のクローンペアに対して異なる分類が行われる要因になったと考えられる．
-% 図~\ref{code:experimet_pair36}では，前者はType3と，後者はType4と判断していた．
-% このように，判断が割れる原因になる．
-以上の結果は，コードクローンにおけるType3とType4の定義の曖昧さを示唆しており，
-本研究が目的とする統一的なラベリング手法の必要性が改めて確認された．
-
-\begin{table}[!b]
-\centering
-\caption{被験者間における実験回答の一致率}
-\label{tab:user_agreement}
-\small % 表全体の文字サイズを少し小さく調整
-\begin{tabular}{lcccccc}\hline
- & P1 & P2 & P3 & P4 & P5 & P6 \\ \hline
-P1 & 100\% & 57\% & 64\% & 75\% & 55\% & 63\% \\
-P2 & 57\% & 100\% & 51\% & 54\% & 76\% & 74\% \\
-P3 & 64\% & 51\% & 100\% & 63\% & 39\% & 45\% \\
-P4 & 75\% & 54\% & 63\% & 100\% & 46\% & 52\% \\
-P5 & 55\% & 76\% & 39\% & 46\% & 100\% & 78\% \\
-P6 & 63\% & 74\% & 45\% & 52\% & 78\% & 100\% \\ \hline
-% \addlinespace[0.5em]
-% \multicolumn{7}{l}{\footnotesize ※ P1--P6は各被験者の実験回答データを示す。} \\
-\end{tabular}
-\end{table}
-
-% P1: ta1kmr，: ry-inoue: i-kondou: g-kimura: c-yosida: tk-kawam
 
 
 \section{妥当性への脅威}
